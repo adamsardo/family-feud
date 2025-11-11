@@ -16,7 +16,7 @@ Points bank per question and get added to your score when the round ends. Get 3 
 - Custom team names
 - Clean, responsive UI
 
-## Setup
+## Setup 
 
 **Requirements:**
 - Node.js 20+
@@ -122,7 +122,3 @@ Edit `/data/questions.json`:
 - Single device only (no multiplayer)
 - Voice may not work on first load (autoplay restrictions)
 - Validation sometimes misses creative answers (AI isn't perfect)
-
----
-
-Built with Next.js and a bit of AI magic.
