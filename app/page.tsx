@@ -89,7 +89,6 @@ export default function Home() {
           role="button"
           tabIndex={0}
           aria-label="Dismiss splash screen"
-          aria-modal="true"
         >
           <Image
             src="/Generated Image November 12, 2025 - 6_35AM.png"

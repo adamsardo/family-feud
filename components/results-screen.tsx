@@ -1,25 +1,30 @@
 "use client";
 
-import React from "react";
+import { toast } from "sonner";
 import { useGame } from "./game-context";
 import { useQuestions } from "@/hooks/use-questions";
 
 export function ResultsScreen() {
   const { teams, startGame, setNextQuestion } = useGame();
-  const { getNextQuestion, reset } = useQuestions();
+  const { getNextQuestion } = useQuestions();
 
   const [a, b] = teams;
   const winner =
     a.score === b.score ? "Tie Game!" : (a.score > b.score ? `${a.name} Wins!` : `${b.name} Wins!`);
 
   const onPlayAgain = () => {
-    reset();
     startGame(a.name, b.name);
-    setNextQuestion(getNextQuestion());
+    const question = getNextQuestion();
+    if (question) {
+      setNextQuestion(question);
+    } else {
+      toast("No questions available", {
+        description: "Add or refresh questions to play again.",
+      });
+    }
   };
 
   const onNewGame = () => {
-    reset();
     startGame("", "");
   };
 

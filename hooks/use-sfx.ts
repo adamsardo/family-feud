@@ -6,12 +6,19 @@ import { useCallback, useEffect, useRef } from 'react';
 export function useSfx() {
   // For the small "next" beep we keep a lightweight AudioContext path
   const ctxRef = useRef<AudioContext | null>(null);
-  const ensureCtx = () => {
+  const ensureCtx = useCallback(() => {
     if (!ctxRef.current) {
-      ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioWindow = window as typeof window & {
+        webkitAudioContext?: typeof AudioContext;
+      };
+      const AudioContextCtor = window.AudioContext ?? audioWindow.webkitAudioContext;
+      if (!AudioContextCtor) {
+        return null;
+      }
+      ctxRef.current = new AudioContextCtor();
     }
-    return ctxRef.current!;
-  };
+    return ctxRef.current;
+  }, []);
 
   const correctRef = useRef<HTMLAudioElement | null>(null);
   const wrongRef = useRef<HTMLAudioElement | null>(null);
@@ -61,19 +68,23 @@ export function useSfx() {
     playFromRef(wrongRef);
   }, [playFromRef]);
 
-  const beep = useCallback((freq: number, durationMs: number, type: OscillatorType = 'sine', gain = 0.05) => {
-    const ctx = ensureCtx();
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
-    g.gain.value = gain;
-    osc.connect(g);
-    g.connect(ctx.destination);
-    const now = ctx.currentTime;
-    osc.start(now);
-    osc.stop(now + durationMs / 1000);
-  }, []);
+  const beep = useCallback(
+    (freq: number, durationMs: number, type: OscillatorType = 'sine', gain = 0.05) => {
+      const ctx = ensureCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      g.gain.value = gain;
+      osc.connect(g);
+      g.connect(ctx.destination);
+      const now = ctx.currentTime;
+      osc.start(now);
+      osc.stop(now + durationMs / 1000);
+    },
+    [ensureCtx]
+  );
 
   const playNext = useCallback(() => {
     // quick whoosh-like double blip

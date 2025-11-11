@@ -15,6 +15,7 @@ Points bank per question and get added to your score when the round ends. Get 3 
 - Proper Family Feud scoring rules (bank and steal mechanics)
 - Custom team names
 - Clean, responsive UI
+- Local resume: game state persists across refreshes on the same device
 
 ## Setup 
 
@@ -112,13 +113,14 @@ Edit `/data/questions.json`:
 
 - Answer validation uses structured output (Zod schema) for reliability
 - TTS streams through an Edge function to keep API keys server-side
-- Game state is in-memory (no database)
+- Game state persists in `localStorage` under `family-feud:game-state`
+- Clear saved progress by removing that key in devtools or calling `localStorage.removeItem("family-feud:game-state")`
 - Validation has a 600ms timeout to keep the game moving
 - Voice autoplay requires user interaction first (browser policy)
 
 ## Limitations
 
-- No persistent storage (refresh = new game)
+- Progress is stored per browser via localStorage (clearing data resets the game)
 - Single device only (no multiplayer)
 - Voice may not work on first load (autoplay restrictions)
 - Validation sometimes misses creative answers (AI isn't perfect)

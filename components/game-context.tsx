@@ -1,61 +1,394 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
-import type { GameActions, GamePhase, GameState, Question, ValidationResponse } from "@/types/game";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type {
+  GameActions,
+  GamePhase,
+  GameState,
+  Question,
+  RoundHistoryEntry,
+  ValidationResponse,
+} from "@/types/game";
+import questionsData from "@/data/questions.json";
+import { looselyMatches, normalizeAnswer } from "@/lib/utils";
+import { clearSnapshot, readSnapshot, writeSnapshot } from "@/lib/storage";
+
+const defaultTeamColors = ["#ef4444", "#3b82f6"];
+
+const questionPool = (questionsData as { questions: Question[] }).questions;
+
+const STORAGE_KEY = "family-feud:game-state";
+const STORAGE_VERSION = 1;
+const MAX_HISTORY_ENTRIES = 50;
 
 type InternalState = GameState & {
   stealOriginalTeamIndex?: 0 | 1;
 };
 
-const defaultTeamColors = ["#ef4444", "#3b82f6"];
+type QuestionDeck = {
+  order: number[];
+  index: number;
+};
 
-const normalizeAnswer = (value: string): string =>
-  value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/gi, "")
-    .toLowerCase();
+type PersistedPayload = {
+  state: InternalState;
+  deck: QuestionDeck;
+};
 
-const looselyMatches = (a: string, b: string): boolean => {
-  if (a.length === 0 || b.length === 0) return false;
-  if (a === b) return true;
-  const shorter = a.length <= b.length ? a : b;
-  const longer = shorter === a ? b : a;
-  if (shorter.length < 4) return false;
-  return longer.includes(shorter);
+const createShuffledIndices = (length: number): number[] => {
+  const indices = Array.from({ length }, (_, i) => i);
+  for (let current = indices.length - 1; current > 0; current -= 1) {
+    const random = Math.floor(Math.random() * (current + 1));
+    [indices[current], indices[random]] = [indices[random], indices[current]];
+  }
+  return indices;
+};
+
+const createDefaultDeck = (length: number): QuestionDeck => ({
+  order: length > 0 ? createShuffledIndices(length) : [],
+  index: 0,
+});
+
+const sanitizeTeam = (
+  team: unknown,
+  fallbackName: string,
+  fallbackColor: string
+): { name: string; color: string; score: number } => {
+  if (!team || typeof team !== "object") {
+    return { name: fallbackName, color: fallbackColor, score: 0 };
+  }
+  const candidate = team as Partial<{ name: string; color: string; score: number }>;
+  return {
+    name:
+      typeof candidate.name === "string" && candidate.name.trim().length > 0
+        ? candidate.name
+        : fallbackName,
+    color: typeof candidate.color === "string" ? candidate.color : fallbackColor,
+    score:
+      typeof candidate.score === "number" && Number.isFinite(candidate.score)
+        ? candidate.score
+        : 0,
+  };
+};
+
+const matchQuestion = (question: unknown, pool: Question[]): Question | null => {
+  if (!question || typeof question !== "object") return null;
+  const candidate = question as Partial<Question>;
+  if (typeof candidate.question !== "string") return null;
+  const match = pool.find((q) => q.question === candidate.question);
+  return match ?? null;
+};
+
+const sanitizeRound = (round: unknown, question: Question | null) => {
+  if (!round || typeof round !== "object" || !question) return null;
+  const candidate = round as Partial<{ strikes: number; revealed: boolean[]; roundPot: number }>;
+  if (
+    !Array.isArray(candidate.revealed) ||
+    typeof candidate.roundPot !== "number" ||
+    typeof candidate.strikes !== "number"
+  ) {
+    return null;
+  }
+  const revealed = question.answers.map((_, idx) =>
+    typeof candidate.revealed?.[idx] === "boolean" ? candidate.revealed[idx]! : false
+  );
+  return {
+    strikes: Math.max(0, Math.min(3, Math.floor(candidate.strikes))),
+    revealed,
+    roundPot: Math.max(0, candidate.roundPot),
+  };
+};
+
+const sanitizeHistoryEntry = (entry: unknown): RoundHistoryEntry | null => {
+  if (!entry || typeof entry !== "object") return null;
+  const candidate = entry as Partial<RoundHistoryEntry>;
+  if (typeof candidate.question !== "string") return null;
+  const answers = Array.isArray(candidate.answers)
+    ? candidate.answers.map((answer) => {
+        if (!answer || typeof answer !== "object") {
+          return { text: "", points: 0, revealed: false };
+        }
+        const casted = answer as Partial<RoundHistoryEntry["answers"][number]>;
+        return {
+          text: typeof casted.text === "string" ? casted.text : "",
+          points:
+            typeof casted.points === "number" && Number.isFinite(casted.points)
+              ? casted.points
+              : 0,
+          revealed: typeof casted.revealed === "boolean" ? casted.revealed : false,
+        };
+      })
+    : [];
+  return {
+    question: candidate.question,
+    answers,
+    strikes:
+      typeof candidate.strikes === "number"
+        ? Math.max(0, Math.min(3, Math.floor(candidate.strikes)))
+        : 0,
+    winningTeam:
+      candidate.winningTeam === 0 || candidate.winningTeam === 1 ? candidate.winningTeam : null,
+    awardedPoints:
+      typeof candidate.awardedPoints === "number" && Number.isFinite(candidate.awardedPoints)
+        ? Math.max(0, candidate.awardedPoints)
+        : 0,
+    occurredAt:
+      typeof candidate.occurredAt === "number" && Number.isFinite(candidate.occurredAt)
+        ? candidate.occurredAt
+        : Date.now(),
+  };
+};
+
+const createDefaultState = (): InternalState => ({
+  teams: [
+    { name: "Team A", color: defaultTeamColors[0], score: 0 },
+    { name: "Team B", color: defaultTeamColors[1], score: 0 },
+  ],
+  activeTeamIndex: 0,
+  phase: "setup",
+  currentQuestion: null,
+  round: null,
+  voiceEnabled: true,
+  roundWinner: null,
+  history: [],
+  stealOriginalTeamIndex: undefined,
+});
+
+const sanitizeState = (incoming: unknown, pool: Question[]): InternalState => {
+  const base = createDefaultState();
+  if (!incoming || typeof incoming !== "object") return base;
+  const candidate = incoming as Partial<InternalState>;
+
+  if (Array.isArray(candidate.teams) && candidate.teams.length === 2) {
+    base.teams = [
+      sanitizeTeam(candidate.teams[0], "Team A", defaultTeamColors[0]),
+      sanitizeTeam(candidate.teams[1], "Team B", defaultTeamColors[1]),
+    ] as [typeof base.teams[0], typeof base.teams[1]];
+  }
+
+  base.activeTeamIndex = candidate.activeTeamIndex === 1 ? 1 : 0;
+
+  if (
+    candidate.phase === "playing" ||
+    candidate.phase === "steal" ||
+    candidate.phase === "results"
+  ) {
+    base.phase = candidate.phase;
+  }
+
+  if (typeof candidate.voiceEnabled === "boolean") {
+    base.voiceEnabled = candidate.voiceEnabled;
+  }
+
+  if (candidate.roundWinner === 0 || candidate.roundWinner === 1) {
+    base.roundWinner = candidate.roundWinner;
+  }
+
+  const matchedQuestion = matchQuestion(candidate.currentQuestion, pool);
+  base.currentQuestion = matchedQuestion;
+  base.round = sanitizeRound(candidate.round, matchedQuestion);
+
+  base.history = Array.isArray(candidate.history)
+    ? candidate.history
+        .map(sanitizeHistoryEntry)
+        .filter((entry): entry is RoundHistoryEntry => entry !== null)
+        .slice(-MAX_HISTORY_ENTRIES)
+    : [];
+
+  if (candidate.stealOriginalTeamIndex === 0 || candidate.stealOriginalTeamIndex === 1) {
+    base.stealOriginalTeamIndex = candidate.stealOriginalTeamIndex;
+  }
+
+  return base;
+};
+
+const normalizeDeck = (deck: QuestionDeck | null, total: number): QuestionDeck => {
+  if (total <= 0) {
+    return { order: [], index: 0 };
+  }
+  if (!deck || !Array.isArray(deck.order)) {
+    return createDefaultDeck(total);
+  }
+  const seen = new Set<number>();
+  const order: number[] = [];
+  for (const value of deck.order) {
+    if (typeof value === "number" && value >= 0 && value < total && !seen.has(value)) {
+      seen.add(value);
+      order.push(value);
+    }
+  }
+  for (let idx = 0; idx < total; idx += 1) {
+    if (!seen.has(idx)) {
+      order.push(idx);
+    }
+  }
+  const index = Math.min(Math.max(deck.index ?? 0, 0), order.length);
+  return {
+    order: order.length > 0 ? order : createDefaultDeck(total).order,
+    index,
+  };
+};
+
+const loadInitialSnapshot = (pool: Question[]): { state: InternalState; deck: QuestionDeck } | null => {
+  const snapshot = readSnapshot<PersistedPayload>(STORAGE_KEY);
+  if (!snapshot || snapshot.version !== STORAGE_VERSION) return null;
+  const payload = snapshot.payload;
+  if (!payload || typeof payload !== "object") return null;
+  return {
+    state: sanitizeState(payload.state, pool),
+    deck: normalizeDeck(payload.deck ?? null, pool.length),
+  };
+};
+
+const finalizeRound = (
+  snapshot: InternalState,
+  winner: 0 | 1 | null,
+  revealedOverride?: boolean[],
+  awardedOverride?: number
+): InternalState => {
+  if (!snapshot.currentQuestion || !snapshot.round) return snapshot;
+  if (snapshot.round.roundPot === 0 && snapshot.roundWinner !== null) return snapshot;
+
+  const revealed = revealedOverride ?? snapshot.round.revealed;
+  const awardedPoints = winner !== null ? awardedOverride ?? snapshot.round.roundPot : 0;
+
+  const teams =
+    winner !== null
+      ? (snapshot.teams.map((team, idx) =>
+          idx === winner ? { ...team, score: team.score + awardedPoints } : team
+        ) as typeof snapshot.teams)
+      : snapshot.teams;
+
+  const historyEntry: RoundHistoryEntry = {
+    question: snapshot.currentQuestion.question,
+    answers: snapshot.currentQuestion.answers.map((answer, idx) => ({
+      text: answer.text,
+      points: answer.points,
+      revealed: revealed[idx] ?? false,
+    })),
+    strikes: snapshot.round.strikes,
+    winningTeam: winner,
+    awardedPoints,
+    occurredAt: Date.now(),
+  };
+
+  return {
+    ...snapshot,
+    teams,
+    round: {
+      ...snapshot.round,
+      revealed,
+      roundPot: 0,
+    },
+    roundWinner: winner,
+    history: [...snapshot.history, historyEntry].slice(-MAX_HISTORY_ENTRIES),
+  };
 };
 
 const GameContext = createContext<(InternalState & GameActions) | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<InternalState>(() => ({
-    teams: [
-      { name: "Team A", color: defaultTeamColors[0], score: 0 },
-      { name: "Team B", color: defaultTeamColors[1], score: 0 },
-    ],
-    activeTeamIndex: 0,
-    phase: "setup",
-    currentQuestion: null,
-    round: null,
-    voiceEnabled: true,
-    roundWinner: null,
-  }));
+  const pool = useMemo<Question[]>(() => questionPool.slice(), []);
+  const [initialSnapshot] = useState(() =>
+    typeof window === "undefined" ? null : loadInitialSnapshot(pool)
+  );
 
-  const startGame = useCallback((teamAName: string, teamBName: string) => {
-    setState({
-      teams: [
-        { name: teamAName || "Team A", color: defaultTeamColors[0], score: 0 },
-        { name: teamBName || "Team B", color: defaultTeamColors[1], score: 0 },
-      ],
-      activeTeamIndex: 0,
-      phase: "setup",
-      currentQuestion: null,
-      round: null,
-      voiceEnabled: true,
-      stealOriginalTeamIndex: undefined,
-      roundWinner: null,
-    });
-  }, []);
+  const [state, setState] = useState<InternalState>(
+    () => initialSnapshot?.state ?? createDefaultState()
+  );
+  const deckRef = useRef<QuestionDeck>(
+    initialSnapshot?.deck ?? createDefaultDeck(pool.length)
+  );
+  const stateRef = useRef(state);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  const persist = useCallback(
+    (snapshotState: InternalState) => {
+      if (typeof window === "undefined") return;
+      const payload: PersistedPayload = {
+        state: snapshotState,
+        deck: deckRef.current,
+      };
+      writeSnapshot(STORAGE_KEY, {
+        version: STORAGE_VERSION,
+        timestamp: Date.now(),
+        payload,
+      });
+    },
+    []
+  );
+
+  useEffect(() => {
+    persist(state);
+  }, [state, persist]);
+
+  const resetQuestionDeck = useCallback(() => {
+    deckRef.current = createDefaultDeck(pool.length);
+    persist(stateRef.current);
+  }, [pool.length, persist]);
+
+  const drawNextQuestion = useCallback((): Question | null => {
+    if (pool.length === 0) return null;
+    deckRef.current = normalizeDeck(deckRef.current, pool.length);
+    let { order, index } = deckRef.current;
+    if (order.length === 0) {
+      deckRef.current = createDefaultDeck(pool.length);
+      order = deckRef.current.order;
+      index = deckRef.current.index;
+    }
+    if (index >= order.length) {
+      deckRef.current = createDefaultDeck(pool.length);
+      order = deckRef.current.order;
+      index = deckRef.current.index;
+    }
+    const questionIndex = order[index];
+    deckRef.current = {
+      order,
+      index: index + 1,
+    };
+    persist(stateRef.current);
+    return typeof questionIndex === "number" ? pool[questionIndex] ?? null : null;
+  }, [pool, persist]);
+
+  const getQuestionCounts = useCallback(
+    () => ({
+      remaining: Math.max(0, deckRef.current.order.length - deckRef.current.index),
+      total: pool.length,
+    }),
+    [pool.length]
+  );
+
+  const startGame = useCallback(
+    (teamAName: string, teamBName: string) => {
+      resetQuestionDeck();
+      setState({
+        teams: [
+          { name: teamAName || "Team A", color: defaultTeamColors[0], score: 0 },
+          { name: teamBName || "Team B", color: defaultTeamColors[1], score: 0 },
+        ],
+        activeTeamIndex: 0,
+        phase: "setup",
+        currentQuestion: null,
+        round: null,
+        voiceEnabled: true,
+        roundWinner: null,
+        history: [],
+        stealOriginalTeamIndex: undefined,
+      });
+    },
+    [resetQuestionDeck]
+  );
 
   const toggleVoice = useCallback((enabled: boolean) => {
     setState((s) => ({ ...s, voiceEnabled: enabled }));
@@ -77,9 +410,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => {
       if (!s.round || !s.currentQuestion) return s;
       if (s.round.revealed[index]) return s;
-      const points = s.currentQuestion.answers[index].points;
-      const revealed = s.round.revealed.slice();
-      revealed[index] = true;
+      const points = s.currentQuestion.answers[index]?.points ?? 0;
+      const revealed = s.round.revealed.map((value, idx) => (idx === index ? true : value));
       return {
         ...s,
         round: {
@@ -89,32 +421,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         },
       };
     });
-  }, []);
-
-  const bankRoundToTeam = useCallback((teamIndex: 0 | 1) => {
-    setState((s) => {
-      if (!s.round) return s;
-      const teams = s.teams.map((t, i) =>
-        i === teamIndex ? { ...t, score: t.score + s.round!.roundPot } : t
-      ) as [typeof s.teams[0], typeof s.teams[1]];
-      return {
-        ...s,
-        teams,
-        round: { ...s.round, roundPot: 0 },
-      };
-    });
-  }, []);
-
-  const endRoundAdvance = useCallback(() => {
-    setState((s) => ({
-      ...s,
-      activeTeamIndex: (s.activeTeamIndex === 0 ? 1 : 0) as 0 | 1,
-      phase: "playing",
-      currentQuestion: null,
-      round: null,
-      stealOriginalTeamIndex: undefined,
-      roundWinner: null,
-    }));
   }, []);
 
   const registerStrike = useCallback(() => {
@@ -136,49 +442,47 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const fetchValidation = useCallback(
-    async (playerAnswer: string): Promise<ValidationResponse> => {
-      const current = state.currentQuestion;
-      if (!current) return { matched: false };
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6500);
-      try {
-        const res = await fetch("/api/validate-answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            question: current.question,
-            boardAnswers: current.answers,
-            playerAnswer,
-          }),
-        });
-        if (!res.ok) {
-          return { matched: false };
-        }
-        const data = (await res.json()) as ValidationResponse;
-        if (typeof data.matched !== "boolean") {
-          return { matched: false };
-        }
-        return data;
-      } catch (error) {
-        if ((error instanceof DOMException && error.name === "AbortError") || controller.signal.aborted) {
-          return { matched: false, timedOut: true };
-        }
+  const fetchValidation = useCallback(async (playerAnswer: string): Promise<ValidationResponse> => {
+    const current = stateRef.current.currentQuestion;
+    if (!current) return { matched: false };
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6500);
+    try {
+      const res = await fetch("/api/validate-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          question: current.question,
+          boardAnswers: current.answers,
+          playerAnswer,
+        }),
+      });
+      if (!res.ok) {
         return { matched: false };
-      } finally {
-        clearTimeout(timeoutId);
       }
-    },
-    [state.currentQuestion]
-  );
+      const data = (await res.json()) as ValidationResponse;
+      if (typeof data.matched !== "boolean") {
+        return { matched: false };
+      }
+      return data;
+    } catch (error) {
+      if ((error instanceof DOMException && error.name === "AbortError") || controller.signal.aborted) {
+        return { matched: false, timedOut: true };
+      }
+      return { matched: false };
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }, []);
 
   const submitAnswer = useCallback(
     async (playerAnswer: string): Promise<ValidationResponse> => {
-      if (state.phase !== "playing" || !state.currentQuestion || !state.round) {
+      const snapshot = stateRef.current;
+      if (snapshot.phase !== "playing" || !snapshot.currentQuestion || !snapshot.round) {
         return { matched: false };
       }
-      const answers = state.currentQuestion.answers;
+      const answers = snapshot.currentQuestion.answers;
       const normalizedAnswers = answers.map((a) => normalizeAnswer(a.text));
       const normalizedPlayer = normalizeAnswer(playerAnswer);
 
@@ -188,7 +492,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
 
       let idx = normalizedAnswers.findIndex((value) => looselyMatches(value, normalizedPlayer));
-
       let timedOut: boolean | undefined;
       let confidence: number | undefined;
 
@@ -208,32 +511,33 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      if (state.round.revealed[idx]) {
+      if (snapshot.round.revealed[idx]) {
         registerStrike();
         return { matched: false, timedOut };
       }
 
-      revealAnswerByIndex(idx);
+      const canonical = answers[idx];
+      const nextRevealed = snapshot.round.revealed.map((flag, i) => (i === idx ? true : flag));
+      const willComplete = nextRevealed.every(Boolean);
 
       setState((s) => {
         if (!s.currentQuestion || !s.round) return s;
-        const allRevealed = s.round.revealed.every(Boolean);
-        if (allRevealed) {
-          const active = s.activeTeamIndex;
-          const teams = s.teams.map((t, i) =>
-            i === active ? { ...t, score: t.score + s.round!.roundPot } : t
-          ) as [typeof s.teams[0], typeof s.teams[1]];
-          return {
-            ...s,
-            teams,
-            round: { ...s.round, roundPot: 0 },
-            roundWinner: null,
-          };
+        const revealed = s.round.revealed.map((flag, i) => (i === idx ? true : flag));
+        const roundPot = s.round.roundPot + canonical.points;
+        const base: InternalState = {
+          ...s,
+          round: {
+            ...s.round,
+            revealed,
+            roundPot,
+          },
+        };
+        if (willComplete) {
+          return finalizeRound(base, s.activeTeamIndex, revealed, roundPot);
         }
-        return s;
+        return base;
       });
 
-      const canonical = answers[idx];
       return {
         matched: true,
         matchedAnswer: canonical.text,
@@ -242,37 +546,46 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         timedOut,
       };
     },
-    [state.phase, state.currentQuestion, state.round, fetchValidation, registerStrike, revealAnswerByIndex]
+    [fetchValidation, registerStrike]
   );
 
   const submitSteal = useCallback(
     async (playerAnswer: string): Promise<ValidationResponse> => {
-      if (state.phase !== "steal" || !state.currentQuestion || !state.round) {
+      const snapshot = stateRef.current;
+      if (snapshot.phase !== "steal" || !snapshot.currentQuestion || !snapshot.round) {
         return { matched: false };
       }
-      const answers = state.currentQuestion.answers;
+      const answers = snapshot.currentQuestion.answers;
       const normalizedAnswers = answers.map((a) => normalizeAnswer(a.text));
       const normalizedPlayer = normalizeAnswer(playerAnswer);
       const originalTeam =
-        state.stealOriginalTeamIndex ?? (state.activeTeamIndex === 0 ? 1 : 0);
-      const resolveFailedSteal = () => {
-        bankRoundToTeam(originalTeam as 0 | 1);
+        snapshot.stealOriginalTeamIndex ?? (snapshot.activeTeamIndex === 0 ? 1 : 0);
+
+      const resolveFailedSteal = (timedOut?: boolean): ValidationResponse => {
         setState((s) => {
-          if (!s.round) return s;
-          return {
-            ...s,
-            round: { ...s.round, revealed: s.round.revealed.map(() => true) },
-          };
+          if (!s.round || !s.currentQuestion) return s;
+          const revealed = s.round.revealed.map(() => true);
+          return finalizeRound(
+            {
+              ...s,
+              round: {
+                ...s.round,
+                revealed,
+              },
+            },
+            originalTeam as 0 | 1,
+            revealed,
+            s.round.roundPot
+          );
         });
+        return { matched: false, timedOut };
       };
 
       if (normalizedPlayer.length === 0) {
-        resolveFailedSteal();
-        return { matched: false };
+        return resolveFailedSteal();
       }
 
       let idx = normalizedAnswers.findIndex((value) => looselyMatches(value, normalizedPlayer));
-
       let timedOut: boolean | undefined;
       let confidence: number | undefined;
 
@@ -280,32 +593,39 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         const result = await fetchValidation(playerAnswer);
         timedOut = result.timedOut;
         if (!result.matched || !result.matchedAnswer) {
-          resolveFailedSteal();
-          return { matched: false, timedOut };
+          return resolveFailedSteal(timedOut);
         }
         const normalizedResult = normalizeAnswer(result.matchedAnswer);
         idx = normalizedAnswers.findIndex((value) => looselyMatches(value, normalizedResult));
         confidence = result.confidence;
         if (idx === -1) {
-          resolveFailedSteal();
-          return { matched: false, timedOut };
+          return resolveFailedSteal(timedOut);
         }
       }
 
-      if (state.round.revealed[idx]) {
-        resolveFailedSteal();
-        return { matched: false, timedOut };
+      if (snapshot.round.revealed[idx]) {
+        return resolveFailedSteal();
       }
 
-      bankRoundToTeam(state.activeTeamIndex);
-      setState((s) => {
-        if (!s.round) return s;
-        return {
-          ...s,
-          round: { ...s.round, revealed: s.round.revealed.map(() => true) },
-        };
-      });
       const canonical = answers[idx];
+
+      setState((s) => {
+        if (!s.round || !s.currentQuestion) return s;
+        const revealed = s.round.revealed.map(() => true);
+        return finalizeRound(
+          {
+            ...s,
+            round: {
+              ...s.round,
+              revealed,
+            },
+          },
+          s.activeTeamIndex,
+          revealed,
+          s.round.roundPot
+        );
+      });
+
       return {
         matched: true,
         matchedAnswer: canonical.text,
@@ -314,20 +634,39 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         timedOut,
       };
     },
-    [
-      state.phase,
-      state.currentQuestion,
-      state.round,
-      state.activeTeamIndex,
-      state.stealOriginalTeamIndex,
-      fetchValidation,
-      bankRoundToTeam,
-    ]
+    [fetchValidation]
   );
 
-  const endGame = useCallback(() => {
-    setState((s) => ({ ...s, phase: "results" as GamePhase }));
+  const endRoundAdvance = useCallback(() => {
+    setState((s) => ({
+      ...s,
+      activeTeamIndex: (s.activeTeamIndex === 0 ? 1 : 0) as 0 | 1,
+      phase: "playing",
+      currentQuestion: null,
+      round: null,
+      stealOriginalTeamIndex: undefined,
+      roundWinner: null,
+    }));
   }, []);
+
+  const endGame = useCallback(() => {
+    setState((s) => ({
+      ...s,
+      phase: "results" as GamePhase,
+      currentQuestion: null,
+      round: null,
+    }));
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    setState((s) => ({ ...s, history: [] }));
+  }, []);
+
+  const resetPersistentState = useCallback(() => {
+    deckRef.current = createDefaultDeck(pool.length);
+    clearSnapshot(STORAGE_KEY);
+    setState(createDefaultState());
+  }, [pool.length]);
 
   const value = useMemo(
     () => ({
@@ -335,26 +674,34 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       startGame,
       toggleVoice,
       setNextQuestion,
+      drawNextQuestion,
+      resetQuestionDeck,
+      getQuestionCounts,
       submitAnswer,
       submitSteal,
       revealAnswerByIndex,
       registerStrike,
-      bankRoundToTeam,
       endRoundAdvance,
       endGame,
+      clearHistory,
+      resetPersistentState,
     }),
     [
       state,
       startGame,
       toggleVoice,
       setNextQuestion,
+      drawNextQuestion,
+      resetQuestionDeck,
+      getQuestionCounts,
       submitAnswer,
       submitSteal,
       revealAnswerByIndex,
       registerStrike,
-      bankRoundToTeam,
       endRoundAdvance,
       endGame,
+      clearHistory,
+      resetPersistentState,
     ]
   );
 
@@ -366,5 +713,3 @@ export function useGame() {
   if (!ctx) throw new Error("useGame must be used within GameProvider");
   return ctx;
 }
-
-

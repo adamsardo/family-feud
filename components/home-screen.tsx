@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useGame } from "@/components/game-context";
 import { useQuestions } from "@/hooks/use-questions";
 
 export function HomeScreen() {
   const { startGame, setNextQuestion } = useGame();
-  const { getNextQuestion, reset } = useQuestions();
+  const { getNextQuestion } = useQuestions();
   const [teamA, setTeamA] = useState("");
   const [teamB, setTeamB] = useState("");
 
@@ -18,9 +19,14 @@ export function HomeScreen() {
   const onStart = () => {
     if (!canStart) return;
     startGame(teamA.trim(), teamB.trim());
-    reset();
-    const q = getNextQuestion();
-    setNextQuestion(q);
+    const question = getNextQuestion();
+    if (question) {
+      setNextQuestion(question);
+    } else {
+      toast("No questions available", {
+        description: "Add or refresh questions to start playing.",
+      });
+    }
   };
 
   return (
@@ -53,7 +59,7 @@ export function HomeScreen() {
           Start Game
         </button>
       </div>
-      <div className="mt-8 text-xs text-white/60">Pass-and-play • No accounts • In-memory</div>
+      <div className="mt-8 text-xs text-white/60">Pass-and-play • No accounts • Auto-resume</div>
     </div>
   );
 }

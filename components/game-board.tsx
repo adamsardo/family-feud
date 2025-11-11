@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGame } from "./game-context";
 import { useQuestions } from "@/hooks/use-questions";
 import { useQuestionTTS } from "@/hooks/use-question-tts";
 import { useSfx } from "@/hooks/use-sfx";
-import type { Question } from "@/types/game";
 import { toast } from "sonner";
 
 export function GameBoard() {
@@ -31,10 +30,12 @@ export function GameBoard() {
 
   useQuestionTTS(voiceEnabled, currentQuestion?.question ?? null);
   useEffect(() => {
-    if (currentQuestion) {
+    if (!currentQuestion) return;
+    const timeoutId = window.setTimeout(() => {
       setAnswer("");
       setFeedback(null);
-    }
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, [currentQuestion]);
 
   const allRevealed = useMemo(() => {
@@ -66,10 +67,17 @@ export function GameBoard() {
   };
 
   const onNextQuestion = () => {
-    playNext();
-    const nextQ: Question = getNextQuestion();
-    endRoundAdvance();
-    setNextQuestion(nextQ);
+    const nextQ = getNextQuestion();
+    if (nextQ) {
+      playNext();
+      endRoundAdvance();
+      setNextQuestion(nextQ);
+    } else {
+      toast("No more questions available", {
+        description: "Showing final scores.",
+      });
+      endGame();
+    }
   };
 
   return (
@@ -100,7 +108,7 @@ export function GameBoard() {
         {/* Turn / Voice */}
         <div className="mb-4 flex items-center justify-between">
           <div className="text-lg font-semibold">
-            {teams[activeTeamIndex].name.toUpperCase()}'S TURN
+            {teams[activeTeamIndex].name.toUpperCase()}&rsquo;S TURN
           </div>
           <label className="flex items-center gap-2 text-xs opacity-80">
             <input

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
+import { looselyMatches, normalizeAnswer } from "@/lib/utils";
 
 export const runtime = "edge";
 
@@ -11,22 +12,6 @@ const ResultSchema = z.object({
   confidence: z.number().optional(),
   points: z.number().optional(),
 });
-
-const normalizeAnswer = (value: string): string =>
-  value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/gi, "")
-    .toLowerCase();
-
-const looselyMatches = (a: string, b: string): boolean => {
-  if (a.length === 0 || b.length === 0) return false;
-  if (a === b) return true;
-  const shorter = a.length <= b.length ? a : b;
-  const longer = shorter === a ? b : a;
-  if (shorter.length < 4) return false;
-  return longer.includes(shorter);
-};
 
 type Answer = { text: string; points: number };
 
