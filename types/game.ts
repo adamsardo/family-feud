@@ -21,6 +21,7 @@ export type ValidationResponse = {
   matchedAnswer?: string;
   confidence?: number;
   points?: number;
+  timedOut?: boolean;
 };
 
 export type RoundState = {

@@ -51,15 +51,16 @@ export function GameBoard() {
   const onSubmit = async () => {
     if (!answer.trim() || submitting) return;
     setSubmitting(true);
-    const start = Date.now();
     const res = phase === "steal" ? await submitSteal(answer.trim()) : await submitAnswer(answer.trim());
     setSubmitting(false);
     setFeedback(res.matched ? "correct" : "wrong");
-    if (res.matched) playCorrect();
-    else playWrong();
-    const elapsed = Date.now() - start;
-    if (!res.matched && elapsed >= 580) {
-      toast("Validation timed out", { description: "Keeping the game moving." });
+    if (res.matched) {
+      playCorrect();
+    } else {
+      playWrong();
+      if (res.timedOut) {
+        toast("Validation timed out", { description: "Keeping the game moving." });
+      }
     }
     setAnswer("");
   };

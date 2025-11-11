@@ -9,6 +9,22 @@ type InternalState = GameState & {
 
 const defaultTeamColors = ["#ef4444", "#3b82f6"];
 
+const normalizeAnswer = (value: string): string =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/gi, "")
+    .toLowerCase();
+
+const looselyMatches = (a: string, b: string): boolean => {
+  if (a.length === 0 || b.length === 0) return false;
+  if (a === b) return true;
+  const shorter = a.length <= b.length ? a : b;
+  const longer = shorter === a ? b : a;
+  if (shorter.length < 4) return false;
+  return longer.includes(shorter);
+};
+
 const GameContext = createContext<(InternalState & GameActions) | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
@@ -125,7 +141,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const current = state.currentQuestion;
       if (!current) return { matched: false };
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 600);
+      const timeoutId = setTimeout(() => controller.abort(), 6500);
       try {
         const res = await fetch("/api/validate-answer", {
           method: "POST",
@@ -137,14 +153,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             playerAnswer,
           }),
         });
-        clearTimeout(timeoutId);
-        if (!res.ok) return { matched: false };
+        if (!res.ok) {
+          return { matched: false };
+        }
         const data = (await res.json()) as ValidationResponse;
-        if (typeof data.matched !== "boolean") return { matched: false };
+        if (typeof data.matched !== "boolean") {
+          return { matched: false };
+        }
         return data;
-      } catch {
-        clearTimeout(timeoutId);
+      } catch (error) {
+        if ((error instanceof DOMException && error.name === "AbortError") || controller.signal.aborted) {
+          return { matched: false, timedOut: true };
+        }
         return { matched: false };
+      } finally {
+        clearTimeout(timeoutId);
       }
     },
     [state.currentQuestion]
@@ -155,36 +178,47 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (state.phase !== "playing" || !state.currentQuestion || !state.round) {
         return { matched: false };
       }
-      const result = await fetchValidation(playerAnswer);
-      if (!result.matched || !result.matchedAnswer) {
-        // wrong — register strike
+      const answers = state.currentQuestion.answers;
+      const normalizedAnswers = answers.map((a) => normalizeAnswer(a.text));
+      const normalizedPlayer = normalizeAnswer(playerAnswer);
+
+      if (normalizedPlayer.length === 0) {
         registerStrike();
         return { matched: false };
       }
 
-      // find index of the matched answer
-      const idx = state.currentQuestion.answers.findIndex(
-        (a) => a.text.toLowerCase() === result.matchedAnswer!.toLowerCase()
-      );
+      let idx = normalizedAnswers.findIndex((value) => looselyMatches(value, normalizedPlayer));
+
+      let timedOut: boolean | undefined;
+      let confidence: number | undefined;
+
       if (idx === -1) {
-        // unknown match; treat as miss
-        registerStrike();
-        return { matched: false };
+        const result = await fetchValidation(playerAnswer);
+        timedOut = result.timedOut;
+        if (!result.matched || !result.matchedAnswer) {
+          registerStrike();
+          return { matched: false, timedOut };
+        }
+        const normalizedResult = normalizeAnswer(result.matchedAnswer);
+        idx = normalizedAnswers.findIndex((value) => looselyMatches(value, normalizedResult));
+        confidence = result.confidence;
+        if (idx === -1) {
+          registerStrike();
+          return { matched: false, timedOut };
+        }
       }
-      // if already revealed, treat as wrong (duplicate)
+
       if (state.round.revealed[idx]) {
         registerStrike();
-        return { matched: false };
+        return { matched: false, timedOut };
       }
 
       revealAnswerByIndex(idx);
 
-      // After reveal, check if all are revealed
       setState((s) => {
         if (!s.currentQuestion || !s.round) return s;
         const allRevealed = s.round.revealed.every(Boolean);
         if (allRevealed) {
-          // Bank immediately to active team, then wait for Next Question
           const active = s.activeTeamIndex;
           const teams = s.teams.map((t, i) =>
             i === active ? { ...t, score: t.score + s.round!.roundPot } : t
@@ -199,7 +233,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         return s;
       });
 
-      return result;
+      const canonical = answers[idx];
+      return {
+        matched: true,
+        matchedAnswer: canonical.text,
+        confidence: confidence ?? 1,
+        points: canonical.points,
+        timedOut,
+      };
     },
     [state.phase, state.currentQuestion, state.round, fetchValidation, registerStrike, revealAnswerByIndex]
   );
@@ -209,14 +250,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (state.phase !== "steal" || !state.currentQuestion || !state.round) {
         return { matched: false };
       }
-      const result = await fetchValidation(playerAnswer);
+      const answers = state.currentQuestion.answers;
+      const normalizedAnswers = answers.map((a) => normalizeAnswer(a.text));
+      const normalizedPlayer = normalizeAnswer(playerAnswer);
       const originalTeam =
         state.stealOriginalTeamIndex ?? (state.activeTeamIndex === 0 ? 1 : 0);
-
-      if (!result.matched || !result.matchedAnswer) {
-        // wrong steal — original team keeps pot
+      const resolveFailedSteal = () => {
         bankRoundToTeam(originalTeam as 0 | 1);
-        // Reveal all remaining answers after resolution
         setState((s) => {
           if (!s.round) return s;
           return {
@@ -224,12 +264,40 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             round: { ...s.round, revealed: s.round.revealed.map(() => true) },
           };
         });
+      };
+
+      if (normalizedPlayer.length === 0) {
+        resolveFailedSteal();
         return { matched: false };
       }
 
-      // successful steal: award entire round pot to stealing team (do not add extra points)
+      let idx = normalizedAnswers.findIndex((value) => looselyMatches(value, normalizedPlayer));
+
+      let timedOut: boolean | undefined;
+      let confidence: number | undefined;
+
+      if (idx === -1) {
+        const result = await fetchValidation(playerAnswer);
+        timedOut = result.timedOut;
+        if (!result.matched || !result.matchedAnswer) {
+          resolveFailedSteal();
+          return { matched: false, timedOut };
+        }
+        const normalizedResult = normalizeAnswer(result.matchedAnswer);
+        idx = normalizedAnswers.findIndex((value) => looselyMatches(value, normalizedResult));
+        confidence = result.confidence;
+        if (idx === -1) {
+          resolveFailedSteal();
+          return { matched: false, timedOut };
+        }
+      }
+
+      if (state.round.revealed[idx]) {
+        resolveFailedSteal();
+        return { matched: false, timedOut };
+      }
+
       bankRoundToTeam(state.activeTeamIndex);
-      // Reveal all remaining answers after resolution
       setState((s) => {
         if (!s.round) return s;
         return {
@@ -237,7 +305,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           round: { ...s.round, revealed: s.round.revealed.map(() => true) },
         };
       });
-      return result;
+      const canonical = answers[idx];
+      return {
+        matched: true,
+        matchedAnswer: canonical.text,
+        confidence: confidence ?? 1,
+        points: canonical.points,
+        timedOut,
+      };
     },
     [
       state.phase,

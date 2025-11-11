@@ -1,0 +1,21 @@
+# AGENT GUIDELINES
+- Use Node 20+; prefer pnpm (lockfile present).
+- Install deps with `pnpm install`; avoid mixing npm clients.
+- Dev server: `pnpm dev` for Next.js hot reload.
+- Build: `pnpm build`; serve production with `pnpm start`.
+- Lint: `pnpm lint` (eslint-config-next core-web-vitals).
+- Tests: no script yet; once added run `pnpm test -- <pattern>` for single specs.
+- Formatting: rely on Next/Prettier defaults; keep file-local semicolon style consistent.
+- Imports: third-party first, blank line, then `@/` aliases and relative modules.
+- Use `type` modifiers for type-only imports to help tree shaking.
+- Components/hooks: PascalCase components, camelCase helpers, `use` prefix for hooks.
+- Central types live in `@/types`; co-locate narrow helper types nearby.
+- Prefer explicit return types on exported functions and API handlers.
+- State: lean on context in `components/game-context.tsx`; avoid prop drilling when possible.
+- Styling: Tailwind v4 via `cn` helper and `cva` variants mirroring existing UI.
+- Accessibility: preserve focus rings, aria attributes, and keyboard flows from shadcn patterns.
+- Data: keep `data/questions.json` in sync with TypeScript contracts.
+- Error handling: validate inputs early, return structured JSON, default to safe fallbacks.
+- External calls: abort long AI/TTS requests and guard missing env vars before invoking providers.
+- Secrets: manage in `.env.local`; never commit keys or tokens.
+- Cursor/Copilot: no `.cursor/rules` or Copilot instruction files present.

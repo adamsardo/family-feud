@@ -12,7 +12,24 @@ const ResultSchema = z.object({
   points: z.number().optional(),
 });
 
+const normalizeAnswer = (value: string): string =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/gi, "")
+    .toLowerCase();
+
+const looselyMatches = (a: string, b: string): boolean => {
+  if (a.length === 0 || b.length === 0) return false;
+  if (a === b) return true;
+  const shorter = a.length <= b.length ? a : b;
+  const longer = shorter === a ? b : a;
+  if (shorter.length < 4) return false;
+  return longer.includes(shorter);
+};
+
 type Answer = { text: string; points: number };
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,9 +72,10 @@ export async function POST(req: NextRequest) {
     ].join("\n");
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 450);
+    const timeout = setTimeout(() => controller.abort(), 6000);
 
     let parsed: z.infer<typeof ResultSchema> | null = null;
+    let timedOut = false;
     try {
       const result = await generateObject({
         model: openai("gpt-4.1-mini"),
@@ -68,27 +86,29 @@ export async function POST(req: NextRequest) {
         abortSignal: controller.signal,
       });
       parsed = result.object;
-    } catch {
+    } catch (error) {
       // timeout or model failure -> treat as no match
+      if (error instanceof Error && error.name === "AbortError") {
+        timedOut = true;
+      }
       parsed = null;
     } finally {
       clearTimeout(timeout);
     }
 
     if (!parsed || parsed.matched !== true || !parsed.matchedAnswer) {
-      return new Response(JSON.stringify({ matched: false }), {
+      return new Response(JSON.stringify({ matched: false, timedOut }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }
 
     // Normalize to one of the provided board answers (case-insensitive match)
-    const idx = boardAnswers.findIndex(
-      (a) => a.text.trim().toLowerCase() === parsed!.matchedAnswer!.trim().toLowerCase()
-    );
+    const normalizedBoard = boardAnswers.map((a) => normalizeAnswer(a.text));
+    const normalizedMatch = normalizeAnswer(parsed.matchedAnswer);
+    const idx = normalizedBoard.findIndex((value) => looselyMatches(value, normalizedMatch));
     if (idx === -1) {
-      // model returned something not exactly in board — fail safe to no match
-      return new Response(JSON.stringify({ matched: false }), {
+      return new Response(JSON.stringify({ matched: false, timedOut: false }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
@@ -103,8 +123,8 @@ export async function POST(req: NextRequest) {
     };
 
     // Require confidence >= 0.8
-    if ((response.confidence ?? 0) < 0.8) {
-      return new Response(JSON.stringify({ matched: false }), {
+    if ((response.confidence ?? 0) < 0.6) {
+      return new Response(JSON.stringify({ matched: false, timedOut: false }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
@@ -114,8 +134,9 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch {
-    return new Response(JSON.stringify({ matched: false }), {
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === "AbortError";
+    return new Response(JSON.stringify({ matched: false, timedOut }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

@@ -16,6 +16,22 @@ function Content() {
 
 function ThemeMusic({ play }: { play: boolean }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
+
+  useEffect(() => {
+    if (unlocked) return;
+    const unlock = () => setUnlocked(true);
+    const events: Array<keyof DocumentEventMap> = ["pointerdown", "keydown", "touchstart"];
+    events.forEach((event) => {
+      window.addEventListener(event, unlock, { once: true });
+    });
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, unlock);
+      });
+    };
+  }, [unlocked]);
+
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio("/Family%20Feud%20Theme%20Song.mp3");
@@ -25,11 +41,19 @@ function ThemeMusic({ play }: { play: boolean }) {
     }
     const audio = audioRef.current;
     if (play) {
-      audio.play().catch(() => {});
+      audio.play().catch(() => {
+        // playback will retry after user interaction unlocks audio
+      });
     } else {
       audio.pause();
     }
   }, [play]);
+
+  useEffect(() => {
+    if (!play || !unlocked || !audioRef.current) return;
+    audioRef.current.play().catch(() => {});
+  }, [play, unlocked]);
+
   return null;
 }
 
