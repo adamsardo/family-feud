@@ -1,18 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { useGame } from '@/components/game-context';
+import React, { useMemo, useState } from "react";
+import { useGame } from "@/components/game-context";
+import { useQuestions } from "@/hooks/use-questions";
 
 export function HomeScreen() {
-  const { startGame, teams } = useGame();
-  const [teamA, setTeamA] = useState(teams[0]?.name ?? '');
-  const [teamB, setTeamB] = useState(teams[1]?.name ?? '');
+  const { startGame, setNextQuestion } = useGame();
+  const { getNext, reset } = useQuestions();
+  const [teamA, setTeamA] = useState("");
+  const [teamB, setTeamB] = useState("");
 
-  const canStart = teamA.trim().length > 0 && teamB.trim().length > 0;
+  const canStart = useMemo(
+    () => teamA.trim().length > 0 && teamB.trim().length > 0,
+    [teamA, teamB]
+  );
 
   const onStart = () => {
     if (!canStart) return;
-    startGame(teamA, teamB);
+    startGame(teamA.trim(), teamB.trim());
+    reset();
+    const q = getNext();
+    setNextQuestion(q);
   };
 
   return (
@@ -46,64 +54,6 @@ export function HomeScreen() {
         </button>
       </div>
       <div className="mt-8 text-xs text-white/60">Pass-and-play • No accounts • In-memory</div>
-    </div>
-  );
-}
-
-"use client";
-
-import React, { useMemo, useState } from "react";
-import { useGame } from "./game-context";
-import { useQuestions } from "@/hooks/use-questions";
-
-export function HomeScreen() {
-  const { startGame, setNextQuestion } = useGame();
-  const { getNextQuestion, reset } = useQuestions();
-  const [teamA, setTeamA] = useState("");
-  const [teamB, setTeamB] = useState("");
-
-  const canStart = useMemo(() => teamA.trim().length > 0 && teamB.trim().length > 0, [teamA, teamB]);
-
-  const onStart = () => {
-    if (!canStart) return;
-    startGame(teamA.trim(), teamB.trim());
-    reset();
-    const q = getNextQuestion();
-    setNextQuestion(q);
-  };
-
-  return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-black to-blue-950 text-white">
-      <div className="w-full max-w-md p-6">
-        <h1 className="mb-8 text-center text-2xl font-bold tracking-wide">Classic Family Feud</h1>
-        <div className="space-y-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium opacity-80">Team 1 Name</label>
-            <input
-              className="w-full rounded-md border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-white/30"
-              placeholder="Sardo"
-              value={teamA}
-              onChange={(e) => setTeamA(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="mb-2 block text-sm font-medium opacity-80">Team 2 Name</label>
-            <input
-              className="w-full rounded-md border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-white/30"
-              placeholder="Pagano"
-              value={teamB}
-              onChange={(e) => setTeamB(e.target.value)}
-            />
-          </div>
-          <button
-            className="mt-6 w-full rounded-md bg-red-600 py-3 font-semibold text-white transition enabled:hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={!canStart}
-            onClick={onStart}
-          >
-            Start Game
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

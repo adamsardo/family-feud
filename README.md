@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Family Feud
 
-## Getting Started
+A web-based Family Feud game with AI-powered answer validation and text-to-speech for questions.
 
-First, run the development server:
+## What it does
+
+Pass-and-play Family Feud for two teams. The AI validates your answers generously (so "mobile phone" matches "phone"), and optionally reads questions aloud using natural-sounding voices.
+
+Points bank per question and get added to your score when the round ends. Get 3 strikes and the other team gets one chance to steal the pot.
+
+## Features
+
+- AI answer validation that understands synonyms and concepts
+- Text-to-speech for questions (ElevenLabs)
+- Proper Family Feud scoring rules (bank and steal mechanics)
+- Custom team names
+- Clean, responsive UI
+
+## Setup
+
+**Requirements:**
+- Node.js 20+
+- OpenAI API key
+- ElevenLabs API key
+
+**Install:**
+
+```bash
+npm install
+```
+
+**Environment variables:**
+
+Create a `.env.local` file:
+
+```
+OPENAI_API_KEY=your_openai_key
+ELEVENLABS_API_KEY=your_elevenlabs_key
+ELEVENLABS_VOICE_ID=your_voice_id_optional
+```
+
+**Run:**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to play
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Enter team names and start
+2. Active team types an answer
+3. AI checks if it matches (generously)
+4. Correct answers reveal and add to the pot
+5. Wrong answers add strikes
+6. 3 strikes = other team gets to steal
+7. Round ends when all answers revealed or after steal
+8. Points bank to the winning team
+9. Next question, next team's turn
 
-## Learn More
+## Tech stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js 16 (App Router, Edge runtime for APIs)
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- OpenAI (via Vercel AI SDK) for answer validation
+- ElevenLabs for text-to-speech
+- Sonner for toasts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+/app
+  /api
+    /tts/stream       # ElevenLabs proxy
+    /validate-answer  # OpenAI validation
+/components
+  game-board.tsx      # Main game UI
+  game-context.tsx    # State management
+  home-screen.tsx     # Team setup
+  results-screen.tsx  # Winner/tie screen
+/hooks
+  use-questions.ts    # Question rotation
+  use-question-tts.ts # Audio playback
+/types
+  game.ts            # TypeScript definitions
+/data
+  questions.json     # Game questions
+```
 
-## Deploy on Vercel
+## Adding questions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Edit `/data/questions.json`:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```json
+{
+  "questions": [
+    {
+      "question": "Name something people do when they can't sleep",
+      "answers": [
+        { "text": "Watch TV", "points": 40 },
+        { "text": "Read", "points": 30 }
+      ]
+    }
+  ]
+}
+```
+
+## Development notes
+
+- Answer validation uses structured output (Zod schema) for reliability
+- TTS streams through an Edge function to keep API keys server-side
+- Game state is in-memory (no database)
+- Validation has a 600ms timeout to keep the game moving
+- Voice autoplay requires user interaction first (browser policy)
+
+## Limitations
+
+- No persistent storage (refresh = new game)
+- Single device only (no multiplayer)
+- Voice may not work on first load (autoplay restrictions)
+- Validation sometimes misses creative answers (AI isn't perfect)
+
+---
+
+Built with Next.js and a bit of AI magic.
