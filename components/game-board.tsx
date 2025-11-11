@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useGame } from "./game-context";
 import { useQuestions } from "@/hooks/use-questions";
 import { useQuestionTTS } from "@/hooks/use-question-tts";
+import { useSfx } from "@/hooks/use-sfx";
 import type { Question } from "@/types/game";
 import { toast } from "sonner";
 
@@ -26,6 +27,7 @@ export function GameBoard() {
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const { playCorrect, playWrong, playNext } = useSfx();
 
   useQuestionTTS(voiceEnabled, currentQuestion?.question ?? null);
   useEffect(() => {
@@ -53,6 +55,8 @@ export function GameBoard() {
     const res = phase === "steal" ? await submitSteal(answer.trim()) : await submitAnswer(answer.trim());
     setSubmitting(false);
     setFeedback(res.matched ? "correct" : "wrong");
+    if (res.matched) playCorrect();
+    else playWrong();
     const elapsed = Date.now() - start;
     if (!res.matched && elapsed >= 580) {
       toast("Validation timed out", { description: "Keeping the game moving." });
@@ -61,6 +65,7 @@ export function GameBoard() {
   };
 
   const onNextQuestion = () => {
+    playNext();
     const nextQ: Question = getNextQuestion();
     endRoundAdvance();
     setNextQuestion(nextQ);
@@ -76,12 +81,14 @@ export function GameBoard() {
             label={teams[0].name}
             score={teams[0].score}
             active={activeTeamIndex === 0}
+            bump={activeTeamIndex === 0 && feedback === "correct" && phase === "playing"}
             color={teams[0].color}
           />
           <ScoreCard
             label={teams[1].name}
             score={teams[1].score}
             active={activeTeamIndex === 1}
+            bump={activeTeamIndex === 1 && feedback === "correct" && phase === "playing"}
             color={teams[1].color}
           />
         </div>
@@ -186,18 +193,20 @@ function ScoreCard({
   label,
   score,
   active,
+  bump,
   color,
 }: {
   label: string;
   score: number;
   active: boolean;
+  bump?: boolean;
   color: string;
 }) {
   return (
     <div
-      className={`rounded-md px-3 py-2 text-white transition ${
+      className={`rounded-md px-3 py-2 text-white transition-transform ${
         active ? "ring-2 ring-white/70" : "ring-0 opacity-80"
-      }`}
+      } ${bump ? "scale-105" : "scale-100"}`}
       style={{ background: color }}
     >
       <div className="text-[10px] leading-none opacity-85">{label.toUpperCase()}</div>

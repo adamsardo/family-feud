@@ -9,12 +9,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const text = searchParams.get("text") || "";
     const voiceId = searchParams.get("voiceId") || DEFAULT_VOICE_ID;
-    if (!text) {
+
+    if (!text.trim()) {
       return new Response("Missing 'text' query.", { status: 400 });
     }
     const apiKey = process.env.ELEVENLABS_API_KEY;
     if (!apiKey) {
-      return new Response("Missing ElevenLabs API key.", { status: 500 });
+      // Soft-fail to avoid UX break if key is absent in local dev
+      return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
     }
 
     const res = await fetch(
@@ -47,9 +49,8 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "no-store",
       },
     });
-  } catch (e) {
+  } catch {
     return new Response("TTS failure", { status: 500 });
   }
 }
-
 

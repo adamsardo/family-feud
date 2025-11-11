@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export function useQuestionTTS(enabled: boolean, text: string | null) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // singleton audio element
+  // Create a single audio element
   useEffect(() => {
     audioRef.current = new Audio();
     audioRef.current.preload = "none";
@@ -21,7 +21,7 @@ export function useQuestionTTS(enabled: boolean, text: string | null) {
 
   const warnedRef = useRef(false);
 
-  // play on question change
+  // Auto play when question changes and voice is enabled
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -36,7 +36,9 @@ export function useQuestionTTS(enabled: boolean, text: string | null) {
       // Autoplay blocked or user hasn't interacted
       if (!warnedRef.current) {
         warnedRef.current = true;
-        toast("Enable audio by tapping after interaction.", { description: "Autoplay was blocked by the browser." });
+        toast("Enable audio by tapping after interaction.", {
+          description: "Autoplay was blocked by the browser.",
+        });
       }
     });
   }, [enabled, text]);

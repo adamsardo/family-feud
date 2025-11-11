@@ -6,7 +6,7 @@ import { useQuestions } from "@/hooks/use-questions";
 
 export function HomeScreen() {
   const { startGame, setNextQuestion } = useGame();
-  const { getNext, reset } = useQuestions();
+  const { getNextQuestion, reset } = useQuestions();
   const [teamA, setTeamA] = useState("");
   const [teamB, setTeamB] = useState("");
 
@@ -19,7 +19,7 @@ export function HomeScreen() {
     if (!canStart) return;
     startGame(teamA.trim(), teamB.trim());
     reset();
-    const q = getNext();
+    const q = getNextQuestion();
     setNextQuestion(q);
   };
 

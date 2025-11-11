@@ -21,7 +21,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     phase: "setup",
     currentQuestion: null,
     round: null,
-    voiceEnabled: false,
+    voiceEnabled: true,
     roundWinner: null,
   }));
 
@@ -35,7 +35,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       phase: "setup",
       currentQuestion: null,
       round: null,
-      voiceEnabled: false,
+      voiceEnabled: true,
       stealOriginalTeamIndex: undefined,
       roundWinner: null,
     });
