@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { GameProvider, useGame } from "@/components/game-context";
 import { HomeScreen } from "@/components/home-screen";
@@ -12,6 +12,31 @@ function Content() {
   if (phase === "setup") return <HomeScreen />;
   if (phase === "results") return <ResultsScreen />;
   return <GameBoard />;
+}
+
+function ThemeMusic({ play }: { play: boolean }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio("/Family%20Feud%20Theme%20Song.mp3");
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.35;
+      audioRef.current.preload = "auto";
+    }
+    const audio = audioRef.current;
+    if (play) {
+      audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  }, [play]);
+  return null;
+}
+
+function PhaseAwareThemeMusic({ showSplash }: { showSplash: boolean }) {
+  const { phase } = useGame();
+  const play = showSplash || phase === "setup";
+  return <ThemeMusic play={play} />;
 }
 
 export default function Home() {
@@ -29,6 +54,7 @@ export default function Home() {
 
   return (
     <GameProvider>
+      <PhaseAwareThemeMusic showSplash={showSplash} />
       {showSplash && (
         <div
           className="fixed inset-0 z-50 cursor-pointer select-none touch-none overscroll-none outline-none"

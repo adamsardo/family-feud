@@ -1,131 +1,4 @@
 import { NextRequest } from "next/server";
-import { createOpenAI } from "@ai-sdk/openai";
-import { generateText } from "ai";
-
-export const runtime = "edge";
-
-type Answer = { text: string; points: number };
-
-export async function POST(req: NextRequest) {
-  try {
-    const { question, boardAnswers, playerAnswer } = (await req.json()) as {
-      question: string;
-      boardAnswers: Answer[];
-      playerAnswer: string;
-    };
-    if (
-      typeof question !== "string" ||
-      !Array.isArray(boardAnswers) ||
-      typeof playerAnswer !== "string"
-    ) {
-      return new Response(JSON.stringify({ matched: false }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 600);
-
-    const answersStr = boardAnswers
-      .map((a) => `${a.text.toUpperCase()} (${a.points})`)
-      .join(", ");
-
-    const system =
-      "You are a Family Feud answer validator. Be generous and match conceptually similar answers. Reply with STRICT JSON only.";
-    const prompt = `
-Question: "${question}"
-Board answers: ${answersStr}
-Player answered: "${playerAnswer}"
-
-Return ONLY JSON:
-{
-  "matched": boolean,
-  "matchedAnswer": string | null,
-  "confidence": number,  // 0..1
-  "points": number | null
-}
-`;
-
-    let json: any = null;
-    try {
-      const { text } = await generateText({
-        model: openai("gpt-4.1-mini"),
-        system,
-        prompt,
-        signal: controller.signal,
-        maxTokens: 150,
-      });
-      json = JSON.parse(text);
-    } catch {
-      clearTimeout(timeout);
-      return new Response(JSON.stringify({ matched: false }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } finally {
-      clearTimeout(timeout);
-    }
-
-    const confidence = typeof json?.confidence === "number" ? json.confidence : 0;
-    const matched =
-      json?.matched === true &&
-      typeof json?.matchedAnswer === "string" &&
-      confidence >= 0.8;
-
-    if (!matched) {
-      return new Response(JSON.stringify({ matched: false }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Normalize matchedAnswer to exactly one of the board answers by best exact case-insensitive match
-    const matchedAnswerUpper = (json.matchedAnswer as string).trim().toUpperCase();
-    const exact = boardAnswers.find(
-      (a) => a.text.trim().toUpperCase() === matchedAnswerUpper
-    );
-    if (!exact) {
-      // If AI returned a conceptual label that isn't exactly on the board, try a looser include match
-      const fuzzy = boardAnswers.find((a) =>
-        matchedAnswerUpper.includes(a.text.trim().toUpperCase())
-      );
-      if (!fuzzy) {
-        return new Response(JSON.stringify({ matched: false }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      return new Response(
-        JSON.stringify({
-          matched: true,
-          matchedAnswer: fuzzy.text,
-          confidence,
-          points: fuzzy.points,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    return new Response(
-      JSON.stringify({
-        matched: true,
-        matchedAnswer: exact.text,
-        confidence,
-        points: exact.points,
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-  } catch {
-    return new Response(JSON.stringify({ matched: false }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-}
-
-import { NextRequest } from "next/server";
 import { z } from "zod";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
@@ -155,6 +28,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // If API key is missing, fail fast to avoid client timeout toast
+    if (!process.env.OPENAI_API_KEY) {
+      return new Response(JSON.stringify({ matched: false }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const openai = createOpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
@@ -174,7 +55,7 @@ export async function POST(req: NextRequest) {
     ].join("\n");
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 600);
+    const timeout = setTimeout(() => controller.abort(), 450);
 
     let parsed: z.infer<typeof ResultSchema> | null = null;
     try {
@@ -182,8 +63,8 @@ export async function POST(req: NextRequest) {
         model: openai("gpt-4.1-mini"),
         schema: ResultSchema,
         prompt,
-        temperature: 0.2,
-        maxTokens: 120,
+        temperature: 0.1,
+        maxOutputTokens: 60,
         abortSignal: controller.signal,
       });
       parsed = result.object;
