@@ -1,0 +1,1275 @@
+{
+    "questions": [
+    {
+    "question": "A cop pulls you over for speeding. What's an excuse you'd give to get out of a ticket",
+    "answers": [
+    { "text": "I was doing my hair", "points": 22 },
+    { "text": "I'm pregnant", "points": 18 },
+    { "text": "I have to poop", "points": 15 },
+    { "text": "Late for work", "points": 13 },
+    { "text": "I'm having a bad day", "points": 11 },
+    { "text": "I didn't know how fast I was going", "points": 9 },
+    { "text": "I'm gonna be sick", "points": 6 },
+    { "text": "I didn't know the speed limit changed", "points": 4 },
+    { "text": "Family emergency", "points": 2 }
+    ]
+    },
+    {
+    "question": "Name a popular Tom Cruise movie",
+    "answers": [
+    { "text": "Top Gun", "points": 40 },
+    { "text": "Mission Impossible", "points": 35 },
+    { "text": "Jerry Maguire", "points": 25 }
+    ]
+    },
+    {
+    "question": "Name a living female singer who might shatter glass when she hits a high note",
+    "answers": [
+    { "text": "Beyonce", "points": 22 },
+    { "text": "Madonna", "points": 18 },
+    { "text": "Dua Lipa", "points": 15 },
+    { "text": "Britney Spears", "points": 12 },
+    { "text": "Mariah Carey", "points": 10 },
+    { "text": "Ariana Grande", "points": 8 },
+    { "text": "Rihanna", "points": 6 },
+    { "text": "Celine Dion", "points": 4 }
+    ]
+    },
+    {
+    "question": "We asked 100 women, if a man plays what instrument, he's probably good at making love",
+    "answers": [
+    { "text": "Flute", "points": 7 },
+    { "text": "Bass", "points": 8 },
+    { "text": "Guitar", "points": 18 },
+    { "text": "Drums", "points": 12 },
+    { "text": "Trombone", "points": 5 },
+    { "text": "Piano", "points": 10 },
+    { "text": "Harp", "points": 3 },
+    { "text": "Harmonica", "points": 6 },
+    { "text": "Trumpet", "points": 9 },
+    { "text": "Tuba", "points": 2 },
+    { "text": "Saxophone", "points": 30 }
+    ]
+    },
+    {
+    "question": "We asked 100 men, name a place you would never take a first date",
+    "answers": [
+    { "text": "Fast food restaurant", "points": 20 },
+    { "text": "Strip club", "points": 18 },
+    { "text": "Bar", "points": 16 },
+    { "text": "My mom's house", "points": 14 },
+    { "text": "Movie theater", "points": 12 },
+    { "text": "Sporting event", "points": 10 },
+    { "text": "Park", "points": 8 },
+    { "text": "To bed", "points": 6 },
+    { "text": "My friend's house", "points": 4 },
+    { "text": "Mall", "points": 2 }
+    ]
+    },
+    {
+    "question": "Good news, you're in the middle of a passionate kiss. Bad news, you open your eyes to find the guy doing what",
+    "answers": [
+    { "text": "Sticking out his tongue", "points": 18 },
+    { "text": "Picking his nose", "points": 16 },
+    { "text": "Rolling his eyes", "points": 14 },
+    { "text": "Farting", "points": 12 },
+    { "text": "On his phone", "points": 10 },
+    { "text": "Staring at me", "points": 9 },
+    { "text": "Looking at someone else", "points": 8 },
+    { "text": "Squeezing my boob", "points": 7 },
+    { "text": "Running the other way", "points": 6 },
+    { "text": "Trying to talk to someone else", "points": 5 },
+    { "text": "Watching TV", "points": 4 }
+    ]
+    },
+    {
+    "question": "Name a word or phrase that begins with the word double",
+    "answers": [
+    { "text": "Double trouble", "points": 25 },
+    { "text": "Double your money", "points": 20 },
+    { "text": "Double jeopardy", "points": 18 },
+    { "text": "Double play", "points": 14 },
+    { "text": "Double time", "points": 12 },
+    { "text": "Double Dutch", "points": 11 }
+    ]
+    },
+    {
+    "question": "We asked 100 women, name something you'd do at the beach if you lost your bikini top",
+    "answers": [
+    { "text": "Take pictures", "points": 18 },
+    { "text": "Use a towel", "points": 16 },
+    { "text": "Keep swimming", "points": 14 },
+    { "text": "Scream", "points": 12 },
+    { "text": "Use my hands", "points": 10 },
+    { "text": "Put on sunscreen (cover up)", "points": 9 },
+    { "text": "Use seaweed", "points": 8 },
+    { "text": "Cover with my hair", "points": 7 },
+    { "text": "Lay face down in the sand", "points": 6 },
+    { "text": "Hide behind someone", "points": 5 },
+    { "text": "Leave the beach", "points": 4 }
+    ]
+    },
+    {
+    "question": "We asked 100 married men, fill in the blank: My wife is like ice cream. They both ____",
+    "answers": [
+    { "text": "Melt", "points": 20 },
+    { "text": "Are sweet", "points": 18 },
+    { "text": "Cool me down", "points": 14 },
+    { "text": "Taste good", "points": 12 },
+    { "text": "Look good", "points": 10 },
+    { "text": "Are flavorful", "points": 8 },
+    { "text": "Get sticky", "points": 6 }
+    ]
+    },
+    {
+    "question": "Name something a man has that he loves to show off to other men",
+    "answers": [
+    { "text": "His car", "points": 22 },
+    { "text": "His girl", "points": 20 },
+    { "text": "His shoes", "points": 8 },
+    { "text": "His watch", "points": 16 },
+    { "text": "His dog", "points": 10 },
+    { "text": "His money", "points": 12 }
+    ]
+    },
+    {
+    "question": "Name something you turn on to help you relax after work",
+    "answers": [
+    { "text": "TV", "points": 20 },
+    { "text": "Music", "points": 16 },
+    { "text": "Hot tub", "points": 12 },
+    { "text": "Video game console", "points": 8 },
+    { "text": "Shower", "points": 10 },
+    { "text": "My spouse", "points": 22 },
+    { "text": "Audiobook", "points": 14 }
+    ]
+    },
+    {
+    "question": "If you really wanna see your man sweat, ask him for what",
+    "answers": [
+    { "text": "Money", "points": 22 },
+    { "text": "The truth", "points": 18 },
+    { "text": "Sex", "points": 16 },
+    { "text": "His phone", "points": 14 },
+    { "text": "Marriage", "points": 12 },
+    { "text": "How much did that really cost", "points": 10 },
+    { "text": "Who's the baby daddy", "points": 8 },
+    { "text": "Car keys", "points": 6 }
+    ]
+    },
+    {
+    "question": "Name a US state that is part of New England",
+    "answers": [
+    { "text": "New Hampshire", "points": 24 },
+    { "text": "Massachusetts", "points": 20 },
+    { "text": "Rhode Island", "points": 18 },
+    { "text": "Maine", "points": 16 },
+    { "text": "Connecticut", "points": 12 },
+    { "text": "Vermont", "points": 10 }
+    ]
+    },
+    {
+    "question": "Name a place you wish you could spend more time",
+    "answers": [
+    { "text": "Heaven", "points": 12 },
+    { "text": "At home", "points": 20 },
+    { "text": "The beach", "points": 18 },
+    { "text": "Church", "points": 14 },
+    { "text": "With family", "points": 16 },
+    { "text": "Alone", "points": 10 },
+    { "text": "At the spa", "points": 12 }
+    ]
+    },
+    {
+    "question": "Name a US state with a lot of billionaires",
+    "answers": [
+    { "text": "California", "points": 24 },
+    { "text": "New York", "points": 22 },
+    { "text": "Nevada", "points": 10 },
+    { "text": "Florida", "points": 18 },
+    { "text": "Texas", "points": 20 },
+    { "text": "Massachusetts", "points": 6 }
+    ]
+    },
+    {
+    "question": "Name something that's no good if it's not juicy",
+    "answers": [
+    { "text": "Battery", "points": 6 },
+    { "text": "Fruit", "points": 20 },
+    { "text": "A kiss", "points": 12 },
+    { "text": "Gum", "points": 10 },
+    { "text": "Steak", "points": 16 },
+    { "text": "Derriere", "points": 8 },
+    { "text": "Sex", "points": 14 },
+    { "text": "Juice", "points": 12 }
+    ]
+    },
+    {
+    "question": "Name a food that looks the same on the way in as it does on the way out",
+    "answers": [
+    { "text": "Corn", "points": 24 },
+    { "text": "Chocolate ice cream", "points": 16 },
+    { "text": "Beans", "points": 12 },
+    { "text": "Fruit", "points": 8 },
+    { "text": "Oatmeal", "points": 14 },
+    { "text": "Nuts", "points": 10 }
+    ]
+    },
+    {
+    "question": "Name a city where it's easier to walk than drive",
+    "answers": [
+    { "text": "New York", "points": 25 },
+    { "text": "Los Angeles", "points": 6 },
+    { "text": "Washington, DC", "points": 12 },
+    { "text": "Atlanta", "points": 5 },
+    { "text": "Las Vegas", "points": 10 },
+    { "text": "San Francisco", "points": 15 },
+    { "text": "Chicago", "points": 14 }
+    ]
+    },
+    {
+    "question": "Tell me a nickname that someone with red hair might be given",
+    "answers": [
+    { "text": "Ginger", "points": 24 },
+    { "text": "Pippi Longstocking", "points": 8 },
+    { "text": "Fire crotch", "points": 6 },
+    { "text": "Fire engine (red)", "points": 10 },
+    { "text": "Orange", "points": 12 },
+    { "text": "Carrot Top", "points": 20 }
+    ]
+    },
+    {
+    "question": "Fill in the blank: Girl, ____",
+    "answers": [
+    { "text": "Girl, fight", "points": 18 },
+    { "text": "Girl, please", "points": 22 },
+    { "text": "Girl boss", "points": 12 },
+    { "text": "Girl trip", "points": 10 },
+    { "text": "Girl, no", "points": 14 },
+    { "text": "Girl doll", "points": 6 },
+    { "text": "Girl power", "points": 20 }
+    ]
+    },
+    {
+    "question": "We asked 100 married women, name a reason your husband takes you to the store and says, get whatever you want",
+    "answers": [
+    { "text": "To get some whoopee", "points": 20 },
+    { "text": "To beg for forgiveness", "points": 18 },
+    { "text": "Because I deserve it", "points": 14 },
+    { "text": "Anniversary gift", "points": 12 },
+    { "text": "It's her birthday", "points": 10 },
+    { "text": "You just had a baby", "points": 8 },
+    { "text": "It's Christmas", "points": 6 },
+    { "text": "She's sad / something bad happened", "points": 5 },
+    { "text": "Because he's rich", "points": 4 }
+    ]
+    },
+    {
+    "question": "In Hannibal the Cannibal's BLT sandwich, the B might stand for what body part",
+    "answers": [
+    { "text": "Breast (boob)", "points": 18 },
+    { "text": "Butt", "points": 16 },
+    { "text": "Big hair", "points": 2 },
+    { "text": "Balls", "points": 10 },
+    { "text": "Brain", "points": 14 },
+    { "text": "Belly", "points": 8 },
+    { "text": "Bones", "points": 6 }
+    ]
+    },
+    {
+    "question": "Name something a man loses that might make him less desirable to women",
+    "answers": [
+    { "text": "Hair", "points": 28 },
+    { "text": "Job", "points": 22 },
+    { "text": "Teeth", "points": 18 },
+    { "text": "Muscles", "points": 14 },
+    { "text": "Car", "points": 10 },
+    { "text": "Libido", "points": 8 },
+    { "text": "Temper / attitude", "points": 6 },
+    { "text": "Mind", "points": 5 },
+    { "text": "Eyesight", "points": 4 },
+    { "text": "House / place to live", "points": 3 }
+    ]
+    },
+    {
+    "question": "Name something that men seem to enjoy the smell of",
+    "answers": [
+    { "text": "Scent of a woman (perfume)", "points": 25 },
+    { "text": "Beer", "points": 16 },
+    { "text": "The gym", "points": 8 },
+    { "text": "Cigar smoke", "points": 12 },
+    { "text": "Cologne", "points": 20 },
+    { "text": "The outdoors", "points": 10 }
+    ]
+    },
+    {
+    "question": "Name a sound that ruins a moment of romance",
+    "answers": [
+    { "text": "A fart", "points": 28 },
+    { "text": "A burp", "points": 18 },
+    { "text": "Door opening", "points": 14 },
+    { "text": "Ringtone", "points": 12 },
+    { "text": "Baby crying", "points": 10 },
+    { "text": "Something breaking", "points": 8 },
+    { "text": "Parents' voices", "points": 6 }
+    ]
+    },
+    {
+    "question": "Past or present, name a celebrity who's been married at least three times",
+    "answers": [
+    { "text": "Britney Spears", "points": 8 },
+    { "text": "Michael Jackson", "points": 10 },
+    { "text": "Steve Harvey", "points": 6 },
+    { "text": "Garth Brooks", "points": 5 },
+    { "text": "Johnny Depp", "points": 12 },
+    { "text": "Kim Kardashian", "points": 18 },
+    { "text": "Johnny Carson", "points": 9 },
+    { "text": "Elizabeth Taylor", "points": 25 },
+    { "text": "Brad Pitt", "points": 7 },
+    { "text": "Jennifer Lopez (J.Lo)", "points": 8 },
+    { "text": "Tom Cruise", "points": 12 },
+    { "text": "Angelina Jolie", "points": 14 },
+    { "text": "Donald Trump", "points": 16 }
+    ]
+    },
+    {
+    "question": "Tell me another word for underwear",
+    "answers": [
+    { "text": "Panties", "points": 22 },
+    { "text": "Tighty-whities", "points": 10 },
+    { "text": "Boxers", "points": 18 },
+    { "text": "Drawers", "points": 16 },
+    { "text": "Undergarments", "points": 12 },
+    { "text": "Thong", "points": 8 },
+    { "text": "Briefs", "points": 6 },
+    { "text": "Bloomers", "points": 4 },
+    { "text": "Skivvies", "points": 10 },
+    { "text": "Undies", "points": 14 },
+    { "text": "Knickers", "points": 6 }
+    ]
+    },
+    {
+    "question": "This is a fill in the blank: Johnny ____",
+    "answers": [
+    { "text": "Be Good", "points": 35 },
+    { "text": "Depp", "points": 30 },
+    { "text": "Cash", "points": 20 },
+    { "text": "Walker", "points": 15 },
+    { "text": "Appleseed", "points": 10 }
+    ]
+    },
+    {
+    "question": "Name a bird that's also the name of a sports team",
+    "answers": [
+    { "text": "Hawks", "points": 18 },
+    { "text": "Blue Jays", "points": 16 },
+    { "text": "Eagles", "points": 20 },
+    { "text": "Falcons", "points": 14 },
+    { "text": "Pelicans", "points": 10 },
+    { "text": "Seahawks", "points": 8 },
+    { "text": "Cardinals", "points": 12 },
+    { "text": "Ravens", "points": 15 },
+    { "text": "Orioles", "points": 9 }
+    ]
+    },
+    {
+    "question": "Fill in the blank: White as ____",
+    "answers": [
+    { "text": "Paper", "points": 22 },
+    { "text": "Snow", "points": 20 },
+    { "text": "A ghost", "points": 15 },
+    { "text": "Christmas", "points": 8 },
+    { "text": "A kitten", "points": 6 },
+    { "text": "A baby's butt", "points": 10 },
+    { "text": "Cotton", "points": 9 }
+    ]
+    },
+    {
+    "question": "Name a place a 60 year old cougar goes to look for a younger guy",
+    "answers": [
+    { "text": "The bar", "points": 30 },
+    { "text": "Swimming pool", "points": 10 },
+    { "text": "Nephew's house / his friends", "points": 2 },
+    { "text": "The gym", "points": 20 },
+    { "text": "A restaurant", "points": 12 },
+    { "text": "Sporting event", "points": 8 }
+    ]
+    },
+    {
+    "question": "Who do you text when you're feeling lonely at night",
+    "answers": [
+    { "text": "Husband", "points": 25 },
+    { "text": "Best friend", "points": 18 },
+    { "text": "Booty call", "points": 20 },
+    { "text": "My ex", "points": 16 },
+    { "text": "Coworker", "points": 8 },
+    { "text": "My mom", "points": 13 }
+    ]
+    },
+    {
+    "question": "Give me a US state with the letter Y in it",
+    "answers": [
+    { "text": "Washington", "points": 20 },
+    { "text": "Wyoming", "points": 22 },
+    { "text": "New York", "points": 18 },
+    { "text": "Kentucky", "points": 16 },
+    { "text": "New Jersey", "points": 8 },
+    { "text": "Louisiana", "points": 10 },
+    { "text": "Maryland", "points": 6 }
+    ]
+    },
+    {
+    "question": "Name something about his wife a comedian better not make fun of during his act",
+    "answers": [
+    { "text": "Her body", "points": 28 },
+    { "text": "Her attitude", "points": 18 },
+    { "text": "Her family", "points": 16 },
+    { "text": "Her clothing", "points": 10 },
+    { "text": "Her friends", "points": 8 },
+    { "text": "Her abilities in the bedroom", "points": 12 },
+    { "text": "She snores", "points": 6 },
+    { "text": "Her cooking", "points": 14 }
+    ]
+    },
+    {
+    "question": "Fill in the blank: Robin ____",
+    "answers": [
+    { "text": "Hood", "points": 35 },
+    { "text": "Williams", "points": 25 },
+    { "text": "Thicke", "points": 15 },
+    { "text": "Banks", "points": 10 },
+    { "text": "And Batman", "points": 8 },
+    { "text": "Robin eggs", "points": 7 }
+    ]
+    },
+    {
+    "question": "Name something dads always think they can fix",
+    "answers": [
+    { "text": "Cars", "points": 30 },
+    { "text": "Broken heart (their daughter)", "points": 8 },
+    { "text": "Your bike", "points": 12 },
+    { "text": "The toilet", "points": 16 },
+    { "text": "Roof", "points": 10 },
+    { "text": "Lawnmower", "points": 6 },
+    { "text": "Marriage", "points": 18 }
+    ]
+    },
+    {
+    "question": "Besides a ball, name something you pass",
+    "answers": [
+    { "text": "A test", "points": 22 },
+    { "text": "Gas", "points": 20 },
+    { "text": "An exit", "points": 12 },
+    { "text": "A cold", "points": 16 },
+    { "text": "Out", "points": 14 },
+    { "text": "A joint", "points": 8 }
+    ]
+    },
+    {
+    "question": "Name a female country singer known by just her first name",
+    "answers": [
+    { "text": "Shania", "points": 28 },
+    { "text": "Reba", "points": 22 },
+    { "text": "Dolly", "points": 20 },
+    { "text": "Faith", "points": 10 },
+    { "text": "Miranda", "points": 8 }
+    ]
+    },
+    {
+    "question": "Give me a country that starts with S",
+    "answers": [
+    { "text": "Spain", "points": 25 },
+    { "text": "Sudan", "points": 10 },
+    { "text": "Switzerland", "points": 18 },
+    { "text": "Swaziland", "points": 6 },
+    { "text": "Sweden", "points": 16 },
+    { "text": "Scotland", "points": 8 },
+    { "text": "South Africa", "points": 12 },
+    { "text": "Singapore", "points": 5 }
+    ]
+    },
+    {
+    "question": "Name a time when you tell your partner, be quiet",
+    "answers": [
+    { "text": "During a TV show", "points": 22 },
+    { "text": "When I'm on the phone", "points": 20 },
+    { "text": "During sex", "points": 18 },
+    { "text": "When I'm sleeping", "points": 16 },
+    { "text": "During church", "points": 12 },
+    { "text": "When disciplining the kids", "points": 8 },
+    { "text": "At the doctor's office", "points": 4 }
+    ]
+    },
+    {
+    "question": "Name a famous person who died that some people believe is still alive",
+    "answers": [
+    { "text": "Michael Jackson", "points": 18 },
+    { "text": "Elvis Presley", "points": 30 },
+    { "text": "Prince", "points": 12 },
+    { "text": "Tupac", "points": 25 },
+    { "text": "JFK", "points": 15 }
+    ]
+    },
+    {
+    "question": "Name a creature with no hair on it",
+    "answers": [
+    { "text": "Armadillo", "points": 14 },
+    { "text": "Mole", "points": 12 },
+    { "text": "Cat (hairless)", "points": 18 },
+    { "text": "Lizard", "points": 10 },
+    { "text": "Alligator", "points": 8 },
+    { "text": "Dolphin", "points": 12 },
+    { "text": "Snake", "points": 16 }
+    ]
+    },
+    {
+    "question": "We asked 100 married men, name an animal your wife looks like when she gives you her mean face",
+    "answers": [
+    { "text": "Dog", "points": 10 },
+    { "text": "Tiger", "points": 14 },
+    { "text": "Lioness", "points": 18 },
+    { "text": "Snake", "points": 8 },
+    { "text": "Gorilla", "points": 6 },
+    { "text": "Hyena", "points": 5 },
+    { "text": "Bull", "points": 12 },
+    { "text": "Coyote", "points": 9 }
+    ]
+    },
+    {
+    "question": "Name a famous captain",
+    "answers": [
+    { "text": "Captain Hook", "points": 20 },
+    { "text": "Captain Crunch", "points": 12 },
+    { "text": "Captain America", "points": 18 },
+    { "text": "Captain Morgan", "points": 10 },
+    { "text": "Captain Jack Sparrow", "points": 14 },
+    { "text": "Captain Kangaroo", "points": 8 },
+    { "text": "Captain Kirk", "points": 16 }
+    ]
+    },
+    {
+    "question": "After finally saying I love you to your partner, you hope they don't say what",
+    "answers": [
+    { "text": "It's okay", "points": 18 },
+    { "text": "Thank you", "points": 16 },
+    { "text": "I know", "points": 14 },
+    { "text": "I'm sorry", "points": 12 },
+    { "text": "I don't", "points": 10 },
+    { "text": "Oh", "points": 8 },
+    { "text": "That's great", "points": 6 }
+    ]
+    },
+    {
+    "question": "Name a US state you think of as God's country",
+    "answers": [
+    { "text": "Mississippi", "points": 10 },
+    { "text": "Nevada", "points": 6 },
+    { "text": "Pennsylvania", "points": 5 },
+    { "text": "Georgia", "points": 12 },
+    { "text": "Oklahoma", "points": 8 },
+    { "text": "Texas", "points": 18 },
+    { "text": "California", "points": 7 },
+    { "text": "Wyoming", "points": 9 },
+    { "text": "Florida", "points": 6 },
+    { "text": "West Virginia", "points": 10 },
+    { "text": "Montana", "points": 12 },
+    { "text": "Maine", "points": 11 },
+    { "text": "Colorado", "points": 14 },
+    { "text": "Hawaii", "points": 16 },
+    { "text": "Alaska", "points": 15 }
+    ]
+    },
+    {
+    "question": "We asked 100 women, fill in the blank: If I spent a day with Steve Harvey, I'd make sure to impress him with my ____ skills",
+    "answers": [
+    { "text": "Working skills", "points": 16 },
+    { "text": "Smart skills", "points": 12 },
+    { "text": "Comedy skills", "points": 10 },
+    { "text": "Cooking skills", "points": 20 },
+    { "text": "Dancing skill", "points": 14 },
+    { "text": "Driving skills", "points": 6 },
+    { "text": "Cleaning skills", "points": 8 },
+    { "text": "Fashion skills", "points": 5 },
+    { "text": "Lovemaking skills", "points": 9 }
+    ]
+    },
+    {
+    "question": "Tell me a US city that starts with B",
+    "answers": [
+    { "text": "Boston", "points": 35 },
+    { "text": "Birmingham", "points": 25 },
+    { "text": "Baltimore", "points": 20 },
+    { "text": "Bakersfield", "points": 10 },
+    { "text": "Burlington", "points": 5 },
+    { "text": "Boise", "points": 15 },
+    { "text": "Buffalo", "points": 12 }
+    ]
+    },
+    {
+    "question": "Name a juice often used as a cocktail mixer",
+    "answers": [
+    { "text": "Cranberry", "points": 28 },
+    { "text": "Orange", "points": 22 },
+    { "text": "Grapefruit", "points": 14 },
+    { "text": "Apple", "points": 6 },
+    { "text": "Pineapple", "points": 18 },
+    { "text": "Tomato", "points": 12 }
+    ]
+    },
+    {
+    "question": "Name something people ride that doesn't run on gasoline",
+    "answers": [
+    { "text": "Train", "points": 25 },
+    { "text": "Horse", "points": 22 },
+    { "text": "Bicycle", "points": 20 },
+    { "text": "Skateboard", "points": 10 },
+    { "text": "A man", "points": 8 },
+    { "text": "Scooter", "points": 6 },
+    { "text": "Exercise bike", "points": 5 },
+    { "text": "Surfboard", "points": 4 }
+    ]
+    },
+    {
+        "question": "Which animal enclosure at the zoo would you like to put your ex husband in",
+        "answers": [
+        { "text": "Gorilla", "points": 30 },
+        { "text": "Lion's den", "points": 22 },
+        { "text": "Alligators", "points": 15 },
+        { "text": "Spiders", "points": 12 },
+        { "text": "Elephant", "points": 9 },
+        { "text": "Wolves", "points": 6 },
+        { "text": "Bear", "points": 4 },
+        { "text": "Giraffe", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name a singer whose music pairs well with lovemaking",
+        "answers": [
+        { "text": "Barry Manilow", "points": 20 },
+        { "text": "Luther Vandross", "points": 17 },
+        { "text": "Barry White", "points": 15 },
+        { "text": "R. Kelly", "points": 13 },
+        { "text": "Marvin Gaye", "points": 11 },
+        { "text": "Stevie Wonder", "points": 9 },
+        { "text": "Al Green", "points": 7 },
+        { "text": "Brian McKnight", "points": 5 },
+        { "text": "Whitney Houston", "points": 2 },
+        { "text": "Lionel Richie", "points": 1 }
+        ]
+        },
+        {
+        "question": "Name something you stuck your finger in more times than you can count",
+        "answers": [
+        { "text": "Pie", "points": 36 },
+        { "text": "Mouth", "points": 26 },
+        { "text": "Hot water", "points": 18 },
+        { "text": "Butt (wiping)", "points": 12 },
+        { "text": "Nose (picking boogers)", "points": 8 }
+        ]
+        },
+        {
+        "question": "Bertha's family was so awful that at her funeral they stole what right off her body",
+        "answers": [
+        { "text": "Flower", "points": 19 },
+        { "text": "Wig", "points": 17 },
+        { "text": "Jewelry", "points": 15 },
+        { "text": "Glasses", "points": 13 },
+        { "text": "Clothes", "points": 11 },
+        { "text": "Nails", "points": 9 },
+        { "text": "Veil", "points": 7 },
+        { "text": "Makeup", "points": 5 },
+        { "text": "Teeth", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name a place you love going to that you hope never goes out of business",
+        "answers": [
+        { "text": "Bar", "points": 32 },
+        { "text": "Movies", "points": 22 },
+        { "text": "Casino", "points": 16 },
+        { "text": "Hotel", "points": 12 },
+        { "text": "Favorite restaurant", "points": 9 },
+        { "text": "Disney World", "points": 6 },
+        { "text": "Strip club", "points": 3 }
+        ]
+        },
+        {
+        "question": "Name someone you have sexy dreams about",
+        "answers": [
+        { "text": "Boss", "points": 30 },
+        { "text": "Girlfriend's friend", "points": 22 },
+        { "text": "Teacher", "points": 15 },
+        { "text": "Ex", "points": 12 },
+        { "text": "Mother-in-law", "points": 9 },
+        { "text": "Babysitter", "points": 6 },
+        { "text": "Doctor", "points": 4 },
+        { "text": "Politician", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name a living comedian who's smart enough to be president",
+        "answers": [
+        { "text": "Steve Harvey", "points": 20 },
+        { "text": "Kevin Hart", "points": 17 },
+        { "text": "Dave Chappelle", "points": 15 },
+        { "text": "Jerry Seinfeld", "points": 13 },
+        { "text": "Chris Rock", "points": 11 },
+        { "text": "Jay Leno", "points": 9 },
+        { "text": "George Lopez", "points": 7 },
+        { "text": "Jimmy Fallon", "points": 5 },
+        { "text": "Steve Martin", "points": 2 },
+        { "text": "Jon Stewart", "points": 1 }
+        ]
+        },
+        {
+        "question": "I want to blank Steve Harvey",
+        "answers": [
+        { "text": "Kiss", "points": 20 },
+        { "text": "Hug", "points": 17 },
+        { "text": "Marry", "points": 15 },
+        { "text": "Meet", "points": 13 },
+        { "text": "Borrow money from", "points": 11 },
+        { "text": "Fight", "points": 9 },
+        { "text": "Befriend", "points": 7 },
+        { "text": "Be Steve Harvey", "points": 5 },
+        { "text": "Vacation with", "points": 2 },
+        { "text": "Dress like", "points": 1 }
+        ]
+        },
+        {
+        "question": "I wouldn't trade my family for the world, but I might trade them for blank",
+        "answers": [
+        { "text": "A whole new family", "points": 60 },
+        { "text": "A nice long vacation", "points": 40 }
+        ]
+        },
+        {
+        "question": "It's a red flag if a man says he has a close relationship with who",
+        "answers": [
+        { "text": "Mother", "points": 19 },
+        { "text": "Ex", "points": 17 },
+        { "text": "Mother-in-law", "points": 15 },
+        { "text": "The Lord", "points": 13 },
+        { "text": "Pet", "points": 11 },
+        { "text": "Therapist", "points": 9 },
+        { "text": "Sister", "points": 7 },
+        { "text": "Sexy bestie", "points": 5 },
+        { "text": "Politician", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name something you think Steve Harvey gives to his sons on their birthday",
+        "answers": [
+        { "text": "Suit", "points": 30 },
+        { "text": "Money", "points": 22 },
+        { "text": "Car", "points": 15 },
+        { "text": "Watch", "points": 12 },
+        { "text": "Strippers", "points": 9 },
+        { "text": "Toys", "points": 6 },
+        { "text": "House", "points": 4 },
+        { "text": "Advice", "points": 2 }
+        ]
+        },
+        {
+        "question": "People think I'm shallow because I fell out of love when I saw his what",
+        "answers": [
+        { "text": "Bank account", "points": 30 },
+        { "text": "Man parts", "points": 22 },
+        { "text": "Car", "points": 15 },
+        { "text": "Credit score", "points": 12 },
+        { "text": "House", "points": 9 },
+        { "text": "Daddy", "points": 6 },
+        { "text": "Job", "points": 4 },
+        { "text": "Teeth", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name a subtle signal you see in your date so they kiss you",
+        "answers": [
+        { "text": "Wink", "points": 30 },
+        { "text": "Purse lips", "points": 22 },
+        { "text": "Squeeze your hand", "points": 15 },
+        { "text": "Hair flip", "points": 12 },
+        { "text": "Lick your lips", "points": 9 },
+        { "text": "Mouth spray", "points": 6 },
+        { "text": "Say 'kiss me'", "points": 4 },
+        { "text": "Sexy smile", "points": 2 }
+        ]
+        },
+        {
+        "question": "If it weren't for the Italians, we'd never know the heavenly taste of what food",
+        "answers": [
+        { "text": "Spaghetti", "points": 34 },
+        { "text": "Pizza", "points": 24 },
+        { "text": "Italian bread", "points": 18 },
+        { "text": "Italian wine", "points": 12 },
+        { "text": "Italian dressing", "points": 7 },
+        { "text": "Cannolis and pastries", "points": 5 }
+        ]
+        },
+        {
+        "question": "Name something that has doubled in size since you were married",
+        "answers": [
+        { "text": "My weight", "points": 19 },
+        { "text": "My bank account", "points": 17 },
+        { "text": "My house", "points": 15 },
+        { "text": "People in the family", "points": 13 },
+        { "text": "Pets", "points": 11 },
+        { "text": "My car", "points": 9 },
+        { "text": "My food bill", "points": 7 },
+        { "text": "Motorcycle", "points": 5 },
+        { "text": "Love", "points": 4 }
+        ]
+        },
+        {
+        "question": "If you left your laptop open, what do you hope isn't on your screen when your mom walks by",
+        "answers": [
+        { "text": "Porn", "points": 32 },
+        { "text": "Bank account", "points": 22 },
+        { "text": "How to get away with murder", "points": 16 },
+        { "text": "Instagram", "points": 12 },
+        { "text": "Angry letter to her", "points": 9 },
+        { "text": "Messages from a 'hoe'", "points": 6 },
+        { "text": "Video game", "points": 3 }
+        ]
+        },
+        {
+        "question": "Name something you share with your best friend",
+        "answers": [
+        { "text": "Girlfriend", "points": 32 },
+        { "text": "Alcohol or beer", "points": 22 },
+        { "text": "Tools", "points": 16 },
+        { "text": "Car", "points": 12 },
+        { "text": "Lawnmower", "points": 9 },
+        { "text": "Video games", "points": 6 },
+        { "text": "House", "points": 3 }
+        ]
+        },
+        {
+        "question": "Name something a kid gets in trouble for molding out of Play Doh",
+        "answers": [
+        { "text": "Weapon", "points": 32 },
+        { "text": "Penis", "points": 22 },
+        { "text": "Cuss word", "points": 16 },
+        { "text": "Poop", "points": 12 },
+        { "text": "Money", "points": 9 },
+        { "text": "Ugly face", "points": 6 },
+        { "text": "Bad symbol", "points": 3 }
+        ]
+        },
+        {
+        "question": "Name something music puts you in the mood to do",
+        "answers": [
+        { "text": "Clean", "points": 20 },
+        { "text": "Have sex", "points": 17 },
+        { "text": "Dance", "points": 15 },
+        { "text": "Work out", "points": 13 },
+        { "text": "Fall asleep", "points": 11 },
+        { "text": "Go out and party", "points": 9 },
+        { "text": "Cry", "points": 7 },
+        { "text": "Cheer on my team", "points": 5 },
+        { "text": "Sing", "points": 2 },
+        { "text": "Play an instrument", "points": 1 }
+        ]
+        },
+        {
+        "question": "If humans had a mating call, what animal might yours sound like",
+        "answers": [
+        { "text": "Pig", "points": 19 },
+        { "text": "Lion", "points": 17 },
+        { "text": "Cat", "points": 15 },
+        { "text": "Monkey", "points": 13 },
+        { "text": "Dog", "points": 11 },
+        { "text": "Dolphin", "points": 9 },
+        { "text": "Tiger", "points": 7 },
+        { "text": "Bird", "points": 5 },
+        { "text": "Wolf", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name a game that would be inappropriate for a church game night",
+        "answers": [
+        { "text": "Jeopardy", "points": 30 },
+        { "text": "Twister", "points": 22 },
+        { "text": "Strip poker", "points": 15 },
+        { "text": "Beer pong", "points": 12 },
+        { "text": "Cards Against Humanity", "points": 9 },
+        { "text": "Beer bong contest", "points": 6 },
+        { "text": "Seven minutes in heaven", "points": 4 },
+        { "text": "Spin the bottle", "points": 2 }
+        ]
+        },
+        {
+        "question": "Some women eat like a bird. What animal does your wife eat like",
+        "answers": [
+        { "text": "Cow", "points": 19 },
+        { "text": "Pig", "points": 17 },
+        { "text": "Horse", "points": 15 },
+        { "text": "Chicken", "points": 13 },
+        { "text": "Elephant", "points": 11 },
+        { "text": "Monkey", "points": 9 },
+        { "text": "Dog", "points": 7 },
+        { "text": "Goat", "points": 5 },
+        { "text": "Bear", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name a reason a couple might be in a hurry to get married",
+        "answers": [
+        { "text": "She's pregnant", "points": 34 },
+        { "text": "They're deeply in love", "points": 24 },
+        { "text": "Deployment", "points": 18 },
+        { "text": "Deportation risk", "points": 12 },
+        { "text": "Parents don't want them to", "points": 7 },
+        { "text": "Getting too old", "points": 5 }
+        ]
+        },
+        {
+        "question": "Tell me a reason you might nickname your date Steve Harvey",
+        "answers": [
+        { "text": "Because he's fine", "points": 17 },
+        { "text": "He's tall", "points": 14 },
+        { "text": "He's bald", "points": 12 },
+        { "text": "He's funny", "points": 11 },
+        { "text": "He dresses well", "points": 9 },
+        { "text": "He's rich", "points": 8 },
+        { "text": "He's respectable", "points": 7 },
+        { "text": "Big mustache", "points": 7 },
+        { "text": "His name is Steve", "points": 6 },
+        { "text": "Nice car", "points": 5 },
+        { "text": "He's famous", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name a tall guy whose nickname should be Mount Baldy",
+        "answers": [
+        { "text": "Michael Jordan", "points": 30 },
+        { "text": "Shaquille O'Neal", "points": 22 },
+        { "text": "Vin Diesel", "points": 15 },
+        { "text": "The Rock", "points": 12 },
+        { "text": "Lamar Odom", "points": 9 },
+        { "text": "LeBron James", "points": 6 },
+        { "text": "Dr. Phil", "points": 4 },
+        { "text": "Mr. Clean", "points": 2 }
+        ]
+        },
+        {
+        "question": "What one thing in your life gives you the most pleasure",
+        "answers": [
+        { "text": "My kids", "points": 34 },
+        { "text": "My happiness", "points": 24 },
+        { "text": "My pet", "points": 18 },
+        { "text": "Job I like", "points": 12 },
+        { "text": "Sex", "points": 7 },
+        { "text": "Money", "points": 5 }
+        ]
+        },
+        {
+        "question": "Name something grandma says that grandpa does just like an old dog",
+        "answers": [
+        { "text": "Kissing", "points": 19 },
+        { "text": "Drools", "points": 17 },
+        { "text": "Running", "points": 15 },
+        { "text": "Farts", "points": 13 },
+        { "text": "Eats", "points": 11 },
+        { "text": "Sleeps", "points": 9 },
+        { "text": "Raises leg to pee", "points": 7 },
+        { "text": "Honks", "points": 5 },
+        { "text": "Growls", "points": 4 }
+        ]
+        },
+        {
+        "question": "Tell me something that's fluffy",
+        "answers": [
+        { "text": "Stuffed animal", "points": 32 },
+        { "text": "Dog", "points": 22 },
+        { "text": "Pillow", "points": 16 },
+        { "text": "Blanket", "points": 12 },
+        { "text": "Baby", "points": 9 },
+        { "text": "Cotton balls", "points": 6 },
+        { "text": "Clouds", "points": 3 }
+        ]
+        },
+        {
+        "question": "Name a chore around the house where using gloves is a good idea",
+        "answers": [
+        { "text": "Dishes", "points": 34 },
+        { "text": "Cleaning the toilet", "points": 24 },
+        { "text": "Cleaning the stove", "points": 18 },
+        { "text": "Taking out the trash", "points": 12 },
+        { "text": "Washing walls", "points": 7 },
+        { "text": "Gardening", "points": 5 }
+        ]
+        },
+        {
+        "question": "Name a place a man fantasizes about making his mother-in-law sleep when she visits",
+        "answers": [
+        { "text": "Garage", "points": 30 },
+        { "text": "Dump", "points": 22 },
+        { "text": "With the dogs", "points": 15 },
+        { "text": "Attic", "points": 12 },
+        { "text": "In the car", "points": 9 },
+        { "text": "Hotel", "points": 6 },
+        { "text": "Closet", "points": 4 },
+        { "text": "On the couch", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name something people keep on their desk that can double as a murder weapon",
+        "answers": [
+        { "text": "Scissors", "points": 20 },
+        { "text": "Stapler", "points": 17 },
+        { "text": "Knife", "points": 15 },
+        { "text": "Computer", "points": 13 },
+        { "text": "Paperweight", "points": 11 },
+        { "text": "Letter opener", "points": 9 },
+        { "text": "File cabinet", "points": 7 },
+        { "text": "Hot coffee", "points": 5 },
+        { "text": "Hole puncher", "points": 2 },
+        { "text": "Pencil", "points": 1 }
+        ]
+        },
+        {
+        "question": "Name something lovers have within reach when taking a bath together",
+        "answers": [
+        { "text": "Bubble bath", "points": 19 },
+        { "text": "Towel", "points": 17 },
+        { "text": "Champagne", "points": 15 },
+        { "text": "Chocolate", "points": 13 },
+        { "text": "Candles", "points": 11 },
+        { "text": "Music", "points": 9 },
+        { "text": "Robes", "points": 7 },
+        { "text": "Soap", "points": 5 },
+        { "text": "Each other", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name an occupation in which you trust a woman more than a man",
+        "answers": [
+        { "text": "Nurse", "points": 19 },
+        { "text": "Accountant", "points": 17 },
+        { "text": "Hairstylist", "points": 15 },
+        { "text": "Masseuse", "points": 13 },
+        { "text": "Gynecologist", "points": 11 },
+        { "text": "Personal shopper", "points": 9 },
+        { "text": "Teacher", "points": 7 },
+        { "text": "Chef", "points": 5 },
+        { "text": "Childcare", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name a place that always has a long bathroom line",
+        "answers": [
+        { "text": "Ball game", "points": 30 },
+        { "text": "Concert", "points": 22 },
+        { "text": "Play (intermission)", "points": 15 },
+        { "text": "Movies", "points": 12 },
+        { "text": "School", "points": 9 },
+        { "text": "Church", "points": 6 },
+        { "text": "Amusement park", "points": 4 },
+        { "text": "Ladies' room", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name a famous rich man whose money is a 10 but whose looks are barely a 5",
+        "answers": [
+        { "text": "Stephen Hawking", "points": 30 },
+        { "text": "Hugh Hefner", "points": 22 },
+        { "text": "Donald Trump", "points": 15 },
+        { "text": "Bill Gates", "points": 12 },
+        { "text": "Steve Jobs", "points": 9 },
+        { "text": "Steve Harvey", "points": 6 },
+        { "text": "Rockefeller", "points": 4 },
+        { "text": "Mark Zuckerberg", "points": 2 }
+        ]
+        },
+        {
+        "question": "A pretty woman winks at you at the bar while your wife is in the bathroom. What do you do",
+        "answers": [
+        { "text": "Ignore", "points": 34 },
+        { "text": "Buy her a drink", "points": 24 },
+        { "text": "Hide wedding band", "points": 18 },
+        { "text": "Talk to her", "points": 12 },
+        { "text": "Ask for phone number", "points": 7 },
+        { "text": "Tell my wife", "points": 5 }
+        ]
+        },
+        {
+        "question": "Name a part of her body a woman uses to control her man",
+        "answers": [
+        { "text": "Breasts", "points": 17 },
+        { "text": "Booty", "points": 14 },
+        { "text": "Lips", "points": 12 },
+        { "text": "Private parts", "points": 11 },
+        { "text": "Mind", "points": 9 },
+        { "text": "Eyes", "points": 8 },
+        { "text": "Legs", "points": 7 },
+        { "text": "Smile", "points": 7 },
+        { "text": "Hands", "points": 6 },
+        { "text": "Hips", "points": 5 },
+        { "text": "Hair", "points": 4 }
+        ]
+        },
+        {
+        "question": "Your guy thinks his package is an eggplant but it looks more like what vegetable",
+        "answers": [
+        { "text": "Carrot", "points": 30 },
+        { "text": "Banana", "points": 22 },
+        { "text": "Cucumber", "points": 15 },
+        { "text": "Zucchini", "points": 12 },
+        { "text": "Potato", "points": 9 },
+        { "text": "Celery", "points": 6 },
+        { "text": "Corn on the cob", "points": 4 },
+        { "text": "String beans", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name something you might see coming out of a hole",
+        "answers": [
+        { "text": "Groundhog", "points": 19 },
+        { "text": "Rabbit", "points": 17 },
+        { "text": "Mouse", "points": 15 },
+        { "text": "Snake", "points": 13 },
+        { "text": "Worm", "points": 11 },
+        { "text": "Chipmunk", "points": 9 },
+        { "text": "Lizard", "points": 7 },
+        { "text": "Worker", "points": 5 },
+        { "text": "Baby", "points": 4 }
+        ]
+        },
+        {
+        "question": "Name a reason a woman might marry a man half her age",
+        "answers": [
+        { "text": "Money", "points": 30 },
+        { "text": "Sex", "points": 22 },
+        { "text": "He can cook", "points": 15 },
+        { "text": "Looks", "points": 12 },
+        { "text": "Energy", "points": 9 },
+        { "text": "Take care of her when older", "points": 6 },
+        { "text": "Flex to friends", "points": 4 },
+        { "text": "Love", "points": 2 }
+        ]
+        },
+        {
+        "question": "Give me an S word you like being called",
+        "answers": [
+        { "text": "Smart", "points": 34 },
+        { "text": "Strong", "points": 24 },
+        { "text": "Sweet", "points": 18 },
+        { "text": "Sharp", "points": 12 },
+        { "text": "Skinny", "points": 7 },
+        { "text": "Son", "points": 5 }
+        ]
+        },
+        {
+        "question": "Name a mobster's favorite place to dump a body",
+        "answers": [
+        { "text": "Garbage", "points": 30 },
+        { "text": "Cemetery", "points": 22 },
+        { "text": "In concrete", "points": 15 },
+        { "text": "Ocean", "points": 12 },
+        { "text": "Opponent's front door", "points": 9 },
+        { "text": "Rolled in carpet in the woods", "points": 6 },
+        { "text": "Motel", "points": 4 },
+        { "text": "Trunk", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name a sport with little balls",
+        "answers": [
+        { "text": "Golf", "points": 34 },
+        { "text": "Tennis", "points": 24 },
+        { "text": "Pool", "points": 18 },
+        { "text": "Racquetball", "points": 12 },
+        { "text": "Baseball", "points": 7 },
+        { "text": "Ping pong", "points": 5 }
+        ]
+        },
+        {
+        "question": "Give me one word in Spanish that everybody knows",
+        "answers": [
+        { "text": "Sí", "points": 30 },
+        { "text": "Hola", "points": 22 },
+        { "text": "Uno", "points": 15 },
+        { "text": "Gracias", "points": 12 },
+        { "text": "Muy bien", "points": 9 },
+        { "text": "De nada", "points": 6 },
+        { "text": "Fiesta", "points": 4 },
+        { "text": "Adiós", "points": 2 }
+        ]
+        },
+        {
+        "question": "A guy who is good at blank is probably also good in bed",
+        "answers": [
+        { "text": "Cooking", "points": 30 },
+        { "text": "Kissing", "points": 22 },
+        { "text": "Spending money", "points": 15 },
+        { "text": "Dancing", "points": 12 },
+        { "text": "Driving", "points": 9 },
+        { "text": "Being funny and telling jokes", "points": 6 },
+        { "text": "Sports", "points": 4 },
+        { "text": "Playing an instrument", "points": 2 }
+        ]
+        },
+        {
+        "question": "Name a place you are where you hold on tight",
+        "answers": [
+        { "text": "Roller coaster", "points": 32 },
+        { "text": "Scary house", "points": 22 },
+        { "text": "Airplane", "points": 16 },
+        { "text": "Boat", "points": 12 },
+        { "text": "Bedroom", "points": 9 },
+        { "text": "Car", "points": 6 },
+        { "text": "Subway train", "points": 3 }
+        ]
+        },
+        {
+        "question": "Tell me the greatest rock and roll band of all time",
+        "answers": [
+        { "text": "The Beatles", "points": 20 },
+        { "text": "Guns N' Roses", "points": 17 },
+        { "text": "ACDC", "points": 15 },
+        { "text": "The Rolling Stones", "points": 13 },
+        { "text": "Kiss", "points": 11 },
+        { "text": "Pink Floyd", "points": 9 },
+        { "text": "Aerosmith", "points": 7 },
+        { "text": "Led Zeppelin", "points": 5 },
+        { "text": "The Beach Boys", "points": 2 },
+        { "text": "Queen", "points": 1 }
+        ]
+        },
+        {
+        "question": "Give me a US state with a Y in it",
+        "answers": [
+        { "text": "Wyoming", "points": 34 },
+        { "text": "Kentucky", "points": 24 },
+        { "text": "New York", "points": 18 },
+        { "text": "New Jersey", "points": 12 },
+        { "text": "Maryland", "points": 7 },
+        { "text": "Pennsylvania", "points": 5 }
+        ]
+        },
+        {
+        "question": "What do you think of when you hear the word bud",
+        "answers": [
+        { "text": "Beer (Budweiser)", "points": 32 },
+        { "text": "Name of a person", "points": 22 },
+        { "text": "A little short man", "points": 16 },
+        { "text": "Flower (bud)", "points": 12 },
+        { "text": "Friend (bud)", "points": 9 },
+        { "text": "Bud Lightyear / Buzz Lightyear", "points": 6 },
+        { "text": "Marijuana", "points": 3 }
+        ]
+        },
+        {
+        "question": "Name something you haven't licked in a long time",
+        "answers": [
+        { "text": "Penis", "points": 40 },
+        { "text": "Lollipop", "points": 28 },
+        { "text": "Postage stamp", "points": 20 },
+        { "text": "Ice cream", "points": 12 }
+        ]
+        }
+        ]
+        }
+        

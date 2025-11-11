@@ -1,0 +1,111 @@
+'use client';
+
+import { useState } from 'react';
+import { useGame } from '@/components/game-context';
+
+export function HomeScreen() {
+  const { startGame, teams } = useGame();
+  const [teamA, setTeamA] = useState(teams[0]?.name ?? '');
+  const [teamB, setTeamB] = useState(teams[1]?.name ?? '');
+
+  const canStart = teamA.trim().length > 0 && teamB.trim().length > 0;
+
+  const onStart = () => {
+    if (!canStart) return;
+    startGame(teamA, teamB);
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-gradient-to-b from-black to-[#0b1020] text-white flex flex-col items-center justify-center px-6">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 space-y-6">
+        <h1 className="text-center text-2xl font-bold tracking-wide">Classic Family Feud</h1>
+        <div className="space-y-2">
+          <label className="text-sm text-white/80">Team 1</label>
+          <input
+            value={teamA}
+            onChange={(e) => setTeamA(e.target.value)}
+            placeholder="Enter team 1 name"
+            className="w-full rounded-md bg-white/10 px-3 py-2 outline-none ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm text-white/80">Team 2</label>
+          <input
+            value={teamB}
+            onChange={(e) => setTeamB(e.target.value)}
+            placeholder="Enter team 2 name"
+            className="w-full rounded-md bg-white/10 px-3 py-2 outline-none ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          onClick={onStart}
+          disabled={!canStart}
+          className="w-full rounded-md bg-gradient-to-r from-red-500 to-orange-500 py-2.5 font-semibold disabled:from-white/20 disabled:to-white/20 disabled:text-white/50 disabled:cursor-not-allowed"
+        >
+          Start Game
+        </button>
+      </div>
+      <div className="mt-8 text-xs text-white/60">Pass-and-play • No accounts • In-memory</div>
+    </div>
+  );
+}
+
+"use client";
+
+import React, { useMemo, useState } from "react";
+import { useGame } from "./game-context";
+import { useQuestions } from "@/hooks/use-questions";
+
+export function HomeScreen() {
+  const { startGame, setNextQuestion } = useGame();
+  const { getNextQuestion, reset } = useQuestions();
+  const [teamA, setTeamA] = useState("");
+  const [teamB, setTeamB] = useState("");
+
+  const canStart = useMemo(() => teamA.trim().length > 0 && teamB.trim().length > 0, [teamA, teamB]);
+
+  const onStart = () => {
+    if (!canStart) return;
+    startGame(teamA.trim(), teamB.trim());
+    reset();
+    const q = getNextQuestion();
+    setNextQuestion(q);
+  };
+
+  return (
+    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-black to-blue-950 text-white">
+      <div className="w-full max-w-md p-6">
+        <h1 className="mb-8 text-center text-2xl font-bold tracking-wide">Classic Family Feud</h1>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium opacity-80">Team 1 Name</label>
+            <input
+              className="w-full rounded-md border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-white/30"
+              placeholder="Sardo"
+              value={teamA}
+              onChange={(e) => setTeamA(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium opacity-80">Team 2 Name</label>
+            <input
+              className="w-full rounded-md border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-white/30"
+              placeholder="Pagano"
+              value={teamB}
+              onChange={(e) => setTeamB(e.target.value)}
+            />
+          </div>
+          <button
+            className="mt-6 w-full rounded-md bg-red-600 py-3 font-semibold text-white transition enabled:hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!canStart}
+            onClick={onStart}
+          >
+            Start Game
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
