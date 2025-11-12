@@ -51,9 +51,58 @@ export async function POST(req: NextRequest) {
       `Board answers: ${boardText}`,
       `Player answered: "${playerAnswer}"`,
       "",
-      "Does this answer match ANY board answer conceptually?",
-      "Be GENEROUS - accept if core concept matches.",
-      "Return ONLY JSON with fields: matched (boolean), matchedAnswer (UPPERCASE board answer text), confidence (0-1).",
+      `
+Determine if the provided answer matches any board answer conceptually, using a generous standard—accept the answer if the core idea aligns, even if details or wording differ.
+
+- Review all board answers and compare with the provided answer.
+
+- Focus on the underlying idea, accepting synonyms, paraphrases, or broad conceptual overlap.
+
+- Only require a match if the main concept or intent is captured.
+
+- Do NOT be strict: minor differences in phrasing, structure, or specificity are acceptable as long as the essential idea is present.
+
+Before making a final call, consider:
+
+  1. The key idea of the provided answer.
+
+  2. The core idea of each board answer.
+
+  3. Comparison for conceptual overlap.
+
+- Reach your conclusion only after considering all candidates.
+
+Output ONLY JSON with these fields:
+
+- matched (boolean): true if any board answer matches conceptually, false otherwise.
+
+- matchedAnswer: The UPPERCASE version of the best-matching board answer (if matched is true); if no match, leave as an empty string "".
+
+- confidence: A number between 0 (no confidence) and 1 (absolute certainty), reflecting how strongly you feel about the match.
+
+# Example
+
+Input:
+- Provided answer: "Plants need sunlight to grow."
+- Board answers: ["PHOTOSYNTHESIS", "WATER", "SUNLIGHT", "SOIL"]
+
+Internal reasoning (not output, not displayed to the user):
+- Provided answer key idea: Plants need sunlight.
+- Board answer "SUNLIGHT" core idea: Sunlight is important.
+- Conceptual match found.
+
+Output:
+{
+  "matched": true,
+  "matchedAnswer": "SUNLIGHT",
+  "confidence": 0.9
+}
+
+(Remember, actual examples may include longer or more ambiguous answers.)
+
+# Important Instructions and Objective (Reminder)
+Your task is to determine if the key idea of the provided answer matches any board answer conceptually, be GENEROUS in matching, and output ONLY the specified JSON with fields: matched, matchedAnswer (UPPERCASE), and confidence (0-1). Always reason before you conclude, but only the JSON should be returned.
+      `,
     ].join("\n");
 
     // Keep request snappy to avoid disrupting gameplay
@@ -64,7 +113,7 @@ export async function POST(req: NextRequest) {
     let timedOut = false;
     try {
       const result = await generateObject({
-        model: openai("gpt-4o-mini"),
+        model: openai("gpt-4.1-mini"),
         schema: ResultSchema,
         prompt,
         temperature: 0.1,
@@ -72,11 +121,18 @@ export async function POST(req: NextRequest) {
         abortSignal: controller.signal,
       });
       parsed = result.object;
-    } catch (error) {
+    } catch (err) {
       // timeout or model failure -> treat as no match (silently)
-      const e = error as any;
-      const name = (e && (e.name || e.constructor?.name)) ?? "";
-      const message = (e && e.message) || "";
+      let name = "";
+      let message = "";
+      if (err && typeof err === "object") {
+        const obj = err as Record<string, unknown>;
+        if (typeof obj.name === "string") name = obj.name;
+        // Fallback to constructor name if available
+        const ctor = obj.constructor as { name?: string } | undefined;
+        if (!name && ctor && typeof ctor.name === "string") name = ctor.name;
+        if (typeof obj.message === "string") message = obj.message;
+      }
       const isAbort =
         String(name) === "AbortError" ||
         /abort/i.test(String(message)) ||
@@ -126,7 +182,7 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error) {
+  } catch {
     // Surface a simple no-match on failures to avoid UI toasts
     return new Response(JSON.stringify({ matched: false, timedOut: false }), {
       status: 200,

@@ -17,13 +17,11 @@ import type {
   RoundHistoryEntry,
   ValidationResponse,
 } from "@/types/game";
-import questionsData from "@/data/questions.json";
+import { useQuestionPacks } from "@/hooks/use-question-packs";
 import { looselyMatches, normalizeAnswer } from "@/lib/utils";
 import { clearSnapshot, readSnapshot, writeSnapshot } from "@/lib/storage";
 
 const defaultTeamColors = ["#ef4444", "#3b82f6"];
-
-const questionPool = (questionsData as { questions: Question[] }).questions;
 
 const STORAGE_KEY = "family-feud:game-state";
 const STORAGE_VERSION = 1;
@@ -299,7 +297,15 @@ const finalizeRound = (
 const GameContext = createContext<(InternalState & GameActions) | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const pool = useMemo<Question[]>(() => questionPool.slice(), []);
+  const { activePack } = useQuestionPacks();
+  const pool = useMemo<Question[]>(
+    () =>
+      activePack.questions.map((question) => ({
+        question: question.question,
+        answers: question.answers.map((answer) => ({ text: answer.text, points: answer.points })),
+      })),
+    [activePack]
+  );
   const [initialSnapshot] = useState(() =>
     typeof window === "undefined" ? null : loadInitialSnapshot(pool)
   );
@@ -311,6 +317,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     initialSnapshot?.deck ?? createDefaultDeck(pool.length)
   );
   const stateRef = useRef(state);
+  const packFingerprintRef = useRef<string>(`${activePack.id}:${activePack.updatedAt}`);
 
   useEffect(() => {
     stateRef.current = state;
@@ -491,7 +498,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         return { matched: false };
       }
       return data;
-    } catch (error) {
+    } catch {
       // Enter backoff to avoid repeated slow attempts
       backoffUntilRef.current = Date.now() + AI_BACKOFF_MS;
       return { matched: false };

@@ -294,7 +294,7 @@ export async function POST(req: NextRequest) {
         "Server-Timing": `elevenlabs;dur=${dur}, cache;desc=MISS`,
       },
     });
-  } catch (err) {
+  } catch {
     return new Response("TTS failure", { status: 500 });
   }
 }

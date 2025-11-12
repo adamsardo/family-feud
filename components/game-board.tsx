@@ -8,10 +8,8 @@ import { useSfx } from "@/hooks/use-sfx";
 import { toast } from "sonner";
 import { FamilyFeudHeader } from "./ui/family-feud-header";
 import { RoundPotDisplay } from "./ui/round-pot-display";
-import { SurveySaysOverlay } from "./ui/survey-says-overlay";
 import { AnswerCard } from "./ui/answer-card";
 import { StrikeDisplay } from "./ui/strike-display";
-import { PhaseTransitionOverlay } from "./ui/phase-transition-overlay";
 import { useSurveySaysTTS } from "@/hooks/use-survey-says-tts";
 
 export function GameBoard() {
@@ -33,8 +31,6 @@ export function GameBoard() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const { playCorrect, playWrong, playNext } = useSfx();
-  const [showSurveySays, setShowSurveySays] = useState(false);
-  const [showStealTransition, setShowStealTransition] = useState(false);
   const surveySaysTTS = useSurveySaysTTS();
 
   const questionTTS = useQuestionTTS(true, currentQuestion?.question ?? null);
@@ -61,7 +57,6 @@ export function GameBoard() {
     return allRevealed || (phase === "steal" && round.roundPot === 0);
   }, [allRevealed, currentQuestion, phase, round]);
 
-  if (!currentQuestion || !round) return null;
 
   // Pre-cache upcoming question as soon as the round ends
   useEffect(() => {
@@ -71,6 +66,8 @@ export function GameBoard() {
       questionTTS.preCache(nextQ.question);
     }
   }, [roundEnded, peekNextQuestion, questionTTS]);
+
+  if (!currentQuestion || !round) return null;
 
   const onSubmit = async () => {
     if (!answer.trim() || submitting) return;

@@ -8,6 +8,25 @@ export type Question = {
   answers: Answer[];
 };
 
+// Question Pack types for managing decks of questions
+export type QuestionPackOrigin = "builtin" | "custom" | "imported";
+
+export type QuestionPack = {
+  id: string;
+  name: string;
+  description?: string;
+  origin: QuestionPackOrigin;
+  createdAt: number;
+  updatedAt: number;
+  version: number;
+  questions: Question[];
+};
+
+export type QuestionPackSnapshot = {
+  packs: QuestionPack[];
+  activePackId: string | null;
+};
+
 export type Team = {
   name: string;
   color: string;
