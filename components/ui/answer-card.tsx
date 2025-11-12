@@ -12,6 +12,7 @@ interface AnswerCardProps {
 }
 
 export function AnswerCard({ revealed, text, points }: AnswerCardProps) {
+  const [isFlipping, setIsFlipping] = useState(false);
   const [hasFlipped, setHasFlipped] = useState(revealed);
   const displayPoints = useNumberCounter(revealed ? points : 0, {
     duration: 600,
@@ -20,7 +21,9 @@ export function AnswerCard({ revealed, text, points }: AnswerCardProps) {
 
   useEffect(() => {
     if (revealed && !hasFlipped) {
+      setIsFlipping(true);
       const timer = setTimeout(() => {
+        setIsFlipping(false);
         setHasFlipped(true);
       }, 600);
       return () => clearTimeout(timer);
@@ -44,7 +47,7 @@ export function AnswerCard({ revealed, text, points }: AnswerCardProps) {
     <motion.div
       className="perspective-1000"
       variants={cardVariants}
-      animate={revealed && !hasFlipped ? "revealed" : "hidden"}
+      animate={isFlipping ? "revealed" : "hidden"}
       style={{ transformStyle: "preserve-3d" }}
     >
       <div
