@@ -113,10 +113,10 @@ Your task is to determine if the key idea of the provided answer matches any boa
     let timedOut = false;
     try {
       const result = await generateObject({
-        model: openai("gpt-4.1-mini"),
+        model: openai("gpt-4.1-nano"),
         schema: ResultSchema,
         prompt,
-        temperature: 0.1,
+        temperature: 0.5,
         maxOutputTokens: 40,
         abortSignal: controller.signal,
       });
