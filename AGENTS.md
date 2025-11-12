@@ -1,21 +1,24 @@
-# AGENT GUIDELINES
-- Use Node 20+; prefer pnpm (lockfile present).
-- Install deps with `pnpm install`; avoid mixing npm clients.
-- Dev server: `pnpm dev` for Next.js hot reload.
-- Build: `pnpm build`; serve production with `pnpm start`.
-- Lint: `pnpm lint` (eslint-config-next core-web-vitals).
-- Tests: no script yet; once added run `pnpm test -- <pattern>` for single specs.
-- Formatting: rely on Next/Prettier defaults; keep file-local semicolon style consistent.
-- Imports: third-party first, blank line, then `@/` aliases and relative modules.
-- Use `type` modifiers for type-only imports to help tree shaking.
-- Components/hooks: PascalCase components, camelCase helpers, `use` prefix for hooks.
-- Central types live in `@/types`; co-locate narrow helper types nearby.
-- Prefer explicit return types on exported functions and API handlers.
-- State: lean on context in `components/game-context.tsx`; avoid prop drilling when possible.
-- Styling: Tailwind v4 via `cn` helper and `cva` variants mirroring existing UI.
-- Accessibility: preserve focus rings, aria attributes, and keyboard flows from shadcn patterns.
-- Data: keep `data/questions.json` in sync with TypeScript contracts.
-- Error handling: validate inputs early, return structured JSON, default to safe fallbacks.
-- External calls: abort long AI/TTS requests and guard missing env vars before invoking providers.
-- Secrets: manage in `.env.local`; never commit keys or tokens.
-- Cursor/Copilot: no `.cursor/rules` or Copilot instruction files present.
+# Repository Guidelines
+Keep Family Feud contributions consistent and production-ready by following the practices below.
+
+## Project Structure & Module Organization
+Next.js App Router code sits in `app/`; `page.tsx` wires `GameProvider`, and `app/api/{validate-answer,tts/stream}` exposes the AI-powered endpoints. UI building blocks, contexts, and animations live in `components/`, shared hooks in `hooks/`, and pure helpers (e.g., answer normalization) in `lib/`. Prompt data is centralized in `data/questions.json`, styles start in `app/globals.css`, and any media assets belong in `public/`. Update or add TypeScript contracts under `types/` so API responses stay aligned with the UI.
+
+## Build, Test, and Development Commands
+- `pnpm install` — install dependencies exactly as locked.
+- `pnpm dev` — hot-reload server on `http://localhost:3000`.
+- `pnpm lint` — run ESLint (`eslint-config-next` + TypeScript); required before review.
+- `pnpm build` — production compile and type-check.
+- `pnpm start` — serve the compiled output to mimic deployment.
+
+## Coding Style & Naming Conventions
+Use TypeScript, two-space indentation, and prefer small modules. Components and hooks are PascalCase exports in kebab-cased filenames (`game-board.tsx`), while utilities stay camelCase. Default to server components; add `"use client"` only when browser APIs or React state are necessary. Tailwind utilities should be ordered predictably (layout → spacing → color) to keep diffs readable, and derived constants belong in `lib/` rather than embedded in JSX.
+
+## Testing Guidelines
+Automated tests are not yet committed, so new behaviors must ship with coverage alongside the change (e.g., `components/__tests__/game-board.spec.tsx` or `lib/__tests__/utils.spec.ts`). Use Vitest + React Testing Library or Playwright, add the script to `package.json`, and document how to run it in the PR. Until a suite exists, run `pnpm dev` and manually exercise setup → gameplay → results, plus `/api/validate-answer` with representative payloads. Treat regressions in scoring or audio playback as release blockers.
+
+## Commit & Pull Request Guidelines
+Follow the existing history: short, imperative subjects near 72 characters, optionally prefixed with a scope (`chore: sync local changes`, `Refactor answer validation logic…`). PRs should summarize intent, list risky areas, reference issues, and include screenshots or short clips for UI/audio tweaks. Mention schema or `.env.local` requirements explicitly.
+
+## Security & Configuration Notes
+Store `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, and optional `ELEVENLABS_VOICE_ID` in `.env.local`; never commit secrets. Edge routes should avoid Node-only globals and log only sanitized strings. Rotate keys immediately if exposed and document new secrets in the PR checklist.

@@ -38,6 +38,9 @@ type QuestionDeck = {
   index: number;
 };
 
+// Backoff window for AI validation after failures
+const AI_BACKOFF_MS = 60_000;
+
 type PersistedPayload = {
   state: InternalState;
   deck: QuestionDeck;
@@ -442,11 +445,23 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const backoffUntilRef = useRef<number>(0);
+
   const fetchValidation = useCallback(async (playerAnswer: string): Promise<ValidationResponse> => {
+    const AI_DISABLED =
+      process.env.NEXT_PUBLIC_DISABLE_AI === "true" || process.env.NEXT_PUBLIC_DISABLE_AI === "1";
+    const now = Date.now();
+    if (
+      AI_DISABLED ||
+      now < backoffUntilRef.current ||
+      (typeof navigator !== "undefined" && navigator.onLine === false)
+    ) {
+      return { matched: false };
+    }
     const current = stateRef.current.currentQuestion;
     if (!current) return { matched: false };
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6500);
+    const timeoutId = setTimeout(() => controller.abort(), 3200);
     try {
       const res = await fetch("/api/validate-answer", {
         method: "POST",
@@ -467,9 +482,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       return data;
     } catch (error) {
-      if ((error instanceof DOMException && error.name === "AbortError") || controller.signal.aborted) {
-        return { matched: false, timedOut: true };
-      }
+      // Enter backoff to avoid repeated slow attempts
+      backoffUntilRef.current = Date.now() + AI_BACKOFF_MS;
       return { matched: false };
     } finally {
       clearTimeout(timeoutId);

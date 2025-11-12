@@ -104,7 +104,7 @@ export function GameBoard() {
       </div>
 
       {/* Body */}
-      <div className="mx-auto w-full max-w-3xl px-4 pb-20">
+      <div className="mx-auto w-full max-w-3xl px-4 pb-28">
         {/* Turn / Voice */}
         <div className="mb-4 flex items-center justify-between">
           <div className="text-lg font-semibold">
@@ -125,8 +125,8 @@ export function GameBoard() {
           {currentQuestion.question}
         </div>
 
-        {/* Board */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* Board: condensed two-column layout */}
+        <div className="grid grid-cols-2 gap-3">
           {currentQuestion.answers.map((a, idx) => (
             <AnswerCard
               key={idx}
@@ -142,33 +142,35 @@ export function GameBoard() {
           <StrikeCounter strikes={round.strikes} />
         </div>
 
-        {/* Input */}
-        {!roundEnded && (
-          <div className="mt-6 flex gap-2">
-            <input
-              className="flex-1 rounded-md border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-white/30"
-              placeholder={phase === "steal" ? "Steal guess..." : "Type your answer..."}
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") onSubmit();
-              }}
-              disabled={submitting}
-            />
-            <button
-              className="rounded-md bg-emerald-600 px-5 font-semibold text-white transition enabled:hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!answer.trim() || submitting}
-              onClick={onSubmit}
-            >
-              {phase === "steal" ? "Submit Steal" : "Submit"}
-            </button>
-          </div>
-        )}
-
-        {/* Feedback */}
+        {/* Feedback (keep above sticky input) */}
         {feedback && (
           <div className={`mt-3 text-sm ${feedback === "correct" ? "text-emerald-400" : "text-red-400"}`}>
             {feedback === "correct" ? "Good Answer!" : "No Good - That answer is not on the board"}
+          </div>
+        )}
+
+        {/* Input: keep visible without scrolling */}
+        {!roundEnded && (
+          <div className="sticky bottom-0 z-10 mt-4 -mx-4 px-4 pb-4 pt-2 backdrop-blur-sm [background:linear-gradient(to_top,rgba(2,6,23,0.9),rgba(2,6,23,0))]">
+            <div className="flex gap-2">
+              <input
+                className="flex-1 rounded-md border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-white/30"
+                placeholder={phase === "steal" ? "Steal guess..." : "Type your answer..."}
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onSubmit();
+                }}
+                disabled={submitting}
+              />
+              <button
+                className="rounded-md bg-emerald-600 px-5 font-semibold text-white transition enabled:hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!answer.trim() || submitting}
+                onClick={onSubmit}
+              >
+                {phase === "steal" ? "Submit Steal" : "Submit"}
+              </button>
+            </div>
           </div>
         )}
 
@@ -235,14 +237,14 @@ function AnswerCard({
 }) {
   return (
     <div
-      className={`flex h-16 items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 backdrop-blur-sm transition ${
+      className={`flex h-12 items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 backdrop-blur-sm transition ${
         revealed ? "bg-gradient-to-r from-red-600 to-orange-500" : ""
       }`}
     >
-      <div className={`text-sm font-semibold ${revealed ? "text-white" : "text-white/70"}`}>
+      <div className={`text-xs font-semibold ${revealed ? "text-white" : "text-white/70"}`}>
         {revealed ? text : "[hidden]"}
       </div>
-      <div className={`text-xl font-extrabold ${revealed ? "text-yellow-200" : "text-white/40"}`}>
+      <div className={`text-lg font-extrabold ${revealed ? "text-yellow-200" : "text-white/40"}`}>
         {revealed ? points : ""}
       </div>
     </div>
@@ -253,5 +255,3 @@ function StrikeCounter({ strikes }: { strikes: number }) {
   const symbols = ["X", "X", "X"].map((s, i) => (i < strikes ? "X" : "_"));
   return <div className="text-lg font-bold tracking-widest text-red-400">{symbols.join(" ")}</div>;
 }
-
-

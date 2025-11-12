@@ -56,26 +56,25 @@ export async function POST(req: NextRequest) {
       "Return ONLY JSON with fields: matched (boolean), matchedAnswer (UPPERCASE board answer text), confidence (0-1).",
     ].join("\n");
 
+    // Keep request snappy to avoid disrupting gameplay
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 3000);
 
     let parsed: z.infer<typeof ResultSchema> | null = null;
     let timedOut = false;
     try {
       const result = await generateObject({
-        model: openai("gpt-4.1-mini"),
+        model: openai("gpt-4o-mini"),
         schema: ResultSchema,
         prompt,
         temperature: 0.1,
-        maxOutputTokens: 60,
+        maxOutputTokens: 40,
         abortSignal: controller.signal,
       });
       parsed = result.object;
     } catch (error) {
-      // timeout or model failure -> treat as no match
-      if (error instanceof Error && error.name === "AbortError") {
-        timedOut = true;
-      }
+      // timeout or model failure -> treat as no match (silently)
+      timedOut = false;
       parsed = null;
     } finally {
       clearTimeout(timeout);
@@ -120,12 +119,10 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    const timedOut = error instanceof Error && error.name === "AbortError";
-    return new Response(JSON.stringify({ matched: false, timedOut }), {
+    // Surface a simple no-match on failures to avoid UI toasts
+    return new Response(JSON.stringify({ matched: false, timedOut: false }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   }
 }
-
-
