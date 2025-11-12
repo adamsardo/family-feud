@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import { QuestionPackManager } from "@/components/question-manager";
 import { Button } from "@/components/ui/button";

@@ -1,13 +1,16 @@
 'use client';
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useGame } from "@/components/game-context";
 import { useQuestions } from "@/hooks/use-questions";
+import { useQuestionPacks } from "@/hooks/use-question-packs";
 
 export function HomeScreen() {
   const { startGame, setNextQuestion } = useGame();
   const { getNextQuestion } = useQuestions();
+  const { packs, activePack, setActivePack } = useQuestionPacks();
   const [teamA, setTeamA] = useState("");
   const [teamB, setTeamB] = useState("");
 
@@ -32,7 +35,26 @@ export function HomeScreen() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-black to-[#0b1020] text-white flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 space-y-6">
-        <h1 className="text-center text-2xl font-bold tracking-wide">Classic Family Feud</h1>
+        <div className="space-y-3 text-center">
+          <h1 className="text-2xl font-bold tracking-wide">Classic Family Feud</h1>
+          <div className="space-y-2 text-sm text-white/70">
+            <label className="block text-xs uppercase tracking-widest text-white/60">Question Pack</label>
+            <select
+              value={activePack.id}
+              onChange={(event) => setActivePack(event.target.value)}
+              className="w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-white outline-none transition focus:border-blue-500"
+            >
+              {packs.map((pack) => (
+                <option key={pack.id} value={pack.id} className="bg-[#0b1020] text-white">
+                  {pack.name} · {pack.questions.length} questions
+                </option>
+              ))}
+            </select>
+            <Link href="/manage-packs" className="inline-flex items-center justify-center text-xs text-blue-300 hover:text-blue-200">
+              Manage question packs →
+            </Link>
+          </div>
+        </div>
         <div className="space-y-2">
           <label className="text-sm text-white/80">Team 1</label>
           <input

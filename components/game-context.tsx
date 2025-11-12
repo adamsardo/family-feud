@@ -317,11 +317,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     initialSnapshot?.deck ?? createDefaultDeck(pool.length)
   );
   const stateRef = useRef(state);
-  const packFingerprintRef = useRef<string>(`${activePack.id}:${activePack.updatedAt}`);
+  const packFingerprintRef = useRef<string>(`${activePack.id}:${activePack.updatedAt}:${pool.length}`);
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    const fingerprint = `${activePack.id}:${activePack.updatedAt}:${pool.length}`;
+    if (packFingerprintRef.current === fingerprint) {
+      return;
+    }
+    packFingerprintRef.current = fingerprint;
+    deckRef.current = createDefaultDeck(pool.length);
+    setState((current) => {
+      const base = createDefaultState();
+      const teams = current.teams.map((team) => ({ ...team, score: 0 })) as typeof current.teams;
+      return {
+        ...base,
+        teams,
+        voiceEnabled: current.voiceEnabled,
+      };
+    });
+  }, [activePack.id, activePack.updatedAt, pool.length]);
 
   const persist = useCallback(
     (snapshotState: InternalState) => {

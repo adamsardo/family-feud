@@ -15,6 +15,7 @@ Points bank per question and get added to your score when the round ends. Get 3 
 - Proper Family Feud scoring rules (bank and steal mechanics)
 - Custom team names
 - Clean, responsive UI
+- Built-in manager for custom question packs (create, import, share)
 - Local resume: game state persists across refreshes on the same device
 
 ## Setup 
@@ -27,7 +28,7 @@ Points bank per question and get added to your score when the round ends. Get 3 
 **Install:**
 
 ```bash
-npm install
+pnpm install
 ```
 
 **Environment variables:**
@@ -52,7 +53,7 @@ ELEVENLABS_TTS_SIMILARITY=1
 **Run:**
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
@@ -118,14 +119,31 @@ Edit `/data/questions.json`:
 }
 ```
 
+## Managing question packs
+
+- Open **Manage Question Packs** from the setup screen or visit `/manage-packs`
+- Create packs from scratch, duplicate the built-in deck, or import JSON files
+- Copy/export packs as JSON or generate a share token (base64 URL) for quick sharing
+- Import tokens by pasting them into the manager or navigating to `/manage-packs?import=<token>`
+- Packs are stored locally in `localStorage` (`family-feud:question-packs`); clearing storage removes customs
+
 ## Development notes
 
 - Answer validation uses structured output (Zod schema) for reliability
 - TTS streams through an Edge function to keep API keys server-side
 - Game state persists in `localStorage` under `family-feud:game-state`
-- Clear saved progress by removing that key in devtools or calling `localStorage.removeItem("family-feud:game-state")`
+- Custom packs persist in `localStorage` under `family-feud:question-packs`
+- Clear saved progress by removing the keys above or using the reset controls in the UI
 - Validation has a 600ms timeout to keep the game moving
 - Voice autoplay requires user interaction first (browser policy)
+
+## Testing
+
+```bash
+pnpm test
+```
+
+Generates a coverage report (`text` + `lcov`) and exercises the question-pack utilities.
 
 ## Limitations
 

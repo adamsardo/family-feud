@@ -108,14 +108,18 @@ const upsertPack = (
 
 const preparePackForSave = (pack: QuestionPack, originOverride?: QuestionPack["origin"]): QuestionPack => {
   const now = Date.now();
+  const isBuiltinSource = pack.origin === "builtin" || pack.id === builtinQuestionPack.id;
   const createdAt =
-    typeof pack.createdAt === "number" && Number.isFinite(pack.createdAt) ? pack.createdAt : now;
+    !isBuiltinSource && typeof pack.createdAt === "number" && Number.isFinite(pack.createdAt)
+      ? pack.createdAt
+      : now;
   const version =
     typeof pack.version === "number" && Number.isFinite(pack.version) ? Math.max(1, Math.floor(pack.version)) : 1;
-  const origin = originOverride ?? (pack.origin === "builtin" ? "custom" : pack.origin ?? "custom");
+  const origin = originOverride ?? (isBuiltinSource ? "custom" : pack.origin ?? "custom");
+  const id = isBuiltinSource ? generatePackId() : pack.id ?? generatePackId();
   return {
     ...pack,
-    id: pack.id ?? generatePackId(),
+    id,
     name: (pack.name ?? "").trim() || "Untitled Pack",
     description: pack.description ?? "",
     origin,
@@ -137,7 +141,7 @@ export type UseQuestionPacksResult = {
   savePack: (pack: QuestionPack, options?: { activate?: boolean }) => QuestionPack;
   deletePack: (packId: string) => void;
   duplicatePack: (packId: string) => QuestionPack | null;
-  importPack: (pack: QuestionPack) => QuestionPack | null;
+  importPack: (pack: QuestionPack) => QuestionPack;
   importFromJson: (json: string) => QuestionPack | null;
   exportPack: (packId: string) => string | null;
   encodeShareToken: (packId: string) => string | null;

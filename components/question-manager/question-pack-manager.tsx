@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -134,7 +135,11 @@ const useBeforeUnload = (enabled: boolean) => {
 };
 
 export function QuestionPackManager() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const importToken = searchParams.get("import");
   const {
+
     packs,
     activePack,
     setActivePack,
@@ -160,18 +165,37 @@ export function QuestionPackManager() {
   useBeforeUnload(dirty);
 
   useEffect(() => {
+    if (!importToken) return;
+    const decoded = decodeShareToken(importToken);
+    if (!decoded) {
+      setError("Invalid share token.");
+      router.replace("/manage-packs");
+      return;
+    }
+    const imported = importPack(decoded);
+    setSelectedPackId(imported.id);
+    setDraft(createEditablePack(imported));
+    setDirty(false);
+    setMessage(`Imported "${imported.name}".`);
+    setError(null);
+    setShareToken("");
+    router.replace("/manage-packs");
+  }, [importToken, decodeShareToken, importPack, router]);
+
+  useEffect(() => {
     if (packs.length === 0) {
       setSelectedPackId(null);
       setDraft(null);
       return;
     }
+    const preferredId = packs.find((pack) => pack.id === activePack.id)?.id ?? packs[0]?.id ?? null;
     setSelectedPackId((current) => {
       if (current && packs.some((pack) => pack.id === current)) {
         return current;
       }
-      return packs[0]?.id ?? null;
+      return preferredId;
     });
-  }, [packs]);
+  }, [packs, activePack.id]);
 
   useEffect(() => {
     if (packs.length === 0) {
@@ -196,8 +220,22 @@ export function QuestionPackManager() {
     }
   }, [packs, selectedPackId]);
 
+  useEffect(() => {
+    if (!selectedPackId) return;
+    const pack = packs.find((entry) => entry.id === selectedPackId);
+    if (!pack) return;
+    setDraft((current) => {
+      if (dirty && current) return current;
+      if (current && current.id === pack.id && current.updatedAt === pack.updatedAt) {
+        return current;
+      }
+      return createEditablePack(pack);
+    });
+  }, [packs, selectedPackId, dirty]);
+
   const issues = useMemo(() => (draft ? collectIssues(draft) : []), [draft]);
   const canSave = issues.length === 0 && dirty;
+  const isBuiltinPack = draft?.origin === "builtin";
 
   const selectPack = (pack: QuestionPack) => {
     if (draft && draft.id === pack.id) return;
@@ -303,9 +341,13 @@ export function QuestionPackManager() {
   const handleSave = async () => {
     if (!draft) return;
     const pack = toQuestionPack(draft);
-    const saved = savePack({ ...pack, origin: draft.origin, createdAt: draft.createdAt, version: draft.version }, {
-      activate: draft.id === activePack.id,
-    });
+    const saved = savePack(
+      { ...pack, origin: draft.origin, createdAt: draft.createdAt, version: draft.version },
+      {
+        activate: draft.id === activePack.id,
+      }
+    );
+    setSelectedPackId(saved.id);
     setDraft(createEditablePack(saved));
     setDirty(false);
     setMessage("Pack saved.");
@@ -553,7 +595,7 @@ export function QuestionPackManager() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Button onClick={handleSave} disabled={!canSave}>
+                <Button onClick={handleSave} disabled={!canSave || !!isBuiltinPack} title={isBuiltinPack ? "Duplicate the built-in pack to edit." : undefined}>
                   Save Changes
                 </Button>
                 <Button variant="outline" onClick={() => setActivePack(draft.id)}>
@@ -562,7 +604,12 @@ export function QuestionPackManager() {
                 <Button variant="ghost" onClick={handleDuplicate}>
                   Duplicate
                 </Button>
-                <Button variant="destructive" onClick={handleDelete}>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={!!isBuiltinPack}
+                  title={isBuiltinPack ? "Built-in pack cannot be deleted." : undefined}
+                >
                   Delete
                 </Button>
                 <Button variant="secondary" onClick={handleExport}>

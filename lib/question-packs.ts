@@ -118,7 +118,8 @@ export const resetQuestionPackSnapshot = (): void => {
 // Merge and active selection
 export const mergeBuiltinWithCustom = (snapshot: QuestionPackSnapshot): QuestionPack[] => {
   const filtered = snapshot.packs.filter((p) => p.id !== builtinQuestionPack.id);
-  return [builtinQuestionPack, ...filtered];
+  const sorted = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+  return [builtinQuestionPack, ...sorted];
 };
 
 export const getActivePack = (snapshot: QuestionPackSnapshot): QuestionPack => {
@@ -197,16 +198,20 @@ const QuestionPackSchema = z.object({
 });
 
 export const serializePack = (pack: QuestionPack): string => {
-  return JSON.stringify({
-    id: pack.id,
-    name: pack.name,
-    description: pack.description ?? "",
-    origin: pack.origin,
-    createdAt: pack.createdAt,
-    updatedAt: pack.updatedAt,
-    version: pack.version,
-    questions: pack.questions,
-  });
+  return JSON.stringify(
+    {
+      id: pack.id,
+      name: pack.name,
+      description: pack.description ?? "",
+      origin: pack.origin,
+      createdAt: pack.createdAt,
+      updatedAt: pack.updatedAt,
+      version: pack.version,
+      questions: pack.questions,
+    },
+    null,
+    2
+  );
 };
 
 export const deserializePack = (value: unknown): QuestionPack | null => {
@@ -215,44 +220,47 @@ export const deserializePack = (value: unknown): QuestionPack | null => {
   return sanitizePack(parsed.data);
 };
 
-const toBase64Url = (str: string): string => {
-  try {
-    if (typeof window !== "undefined" && typeof window.btoa === "function") {
-      // Browser-safe
-      const b64 = window.btoa(unescape(encodeURIComponent(str)));
-      return b64.replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-    }
-  } catch {
-    // fallback to Node path
-  }
-  // Node.js fallback
-  const B: any = (globalThis as any).Buffer;
-  if (B && typeof B.from === "function") {
-    const b64 = B.from(str, "utf8").toString("base64");
-    return b64.replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-  }
-  // Last resort: return plain text (won't be share-safe but avoids runtime error)
-  return str;
+const getBufferCtor = (): typeof Buffer | undefined => {
+  const candidate = (globalThis as { Buffer?: typeof Buffer }).Buffer;
+  return typeof candidate === "function" ? candidate : undefined;
 };
 
-const fromBase64Url = (str: string): string => {
-  const pad = str.length % 4 === 0 ? "" : "=".repeat(4 - (str.length % 4));
-  const b64 = str.replace(/-/g, "+").replace(/_/g, "/") + pad;
-  try {
-    if (typeof window !== "undefined" && typeof window.atob === "function") {
-      const text = decodeURIComponent(escape(window.atob(b64)));
-      return text;
-    }
-  } catch {
-    // fallback to Node path
+const toBase64Url = (input: string): string => {
+  const toUrlSafe = (value: string) => value.replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+
+  if (typeof window !== "undefined" && typeof window.btoa === "function" && typeof TextEncoder !== "undefined") {
+    const bytes = new TextEncoder().encode(input);
+    let binary = "";
+    bytes.forEach((byte) => {
+      binary += String.fromCharCode(byte);
+    });
+    return toUrlSafe(window.btoa(binary));
   }
-  // Node.js fallback
-  const B: any = (globalThis as any).Buffer;
-  if (B && typeof B.from === "function") {
-    return B.from(b64, "base64").toString("utf8");
+
+  const BufferCtor = getBufferCtor();
+  if (BufferCtor) {
+    return toUrlSafe(BufferCtor.from(input, "utf8").toString("base64"));
   }
-  // Last resort: return original token
-  return str;
+
+  return input;
+};
+
+const fromBase64Url = (input: string): string => {
+  const padLength = (4 - (input.length % 4)) % 4;
+  const padded = input.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat(padLength);
+
+  if (typeof window !== "undefined" && typeof window.atob === "function" && typeof TextDecoder !== "undefined") {
+    const binary = window.atob(padded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  const BufferCtor = getBufferCtor();
+  if (BufferCtor) {
+    return BufferCtor.from(padded, "base64").toString("utf8");
+  }
+
+  return input;
 };
 
 export const encodePackForQuery = (pack: QuestionPack): string => toBase64Url(serializePack(pack));
