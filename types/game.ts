@@ -60,6 +60,7 @@ export type GameActions = {
   toggleVoice: (enabled: boolean) => void;
   setNextQuestion: (question: Question) => void;
   drawNextQuestion: () => Question | null;
+  peekNextQuestion: () => Question | null;
   resetQuestionDeck: () => void;
   getQuestionCounts: () => { remaining: number; total: number };
   submitAnswer: (playerAnswer: string) => Promise<ValidationResponse>;

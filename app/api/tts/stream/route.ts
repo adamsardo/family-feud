@@ -6,7 +6,7 @@ const DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWA
 // Allow overriding the TTS model via env; default to ElevenLabs v3 alpha (eleven_v3)
 // Docs: https://elevenlabs.io/docs/models#eleven-v3-alpha
 const MODEL_ID = process.env.ELEVENLABS_TTS_MODEL_ID || "eleven_v3";
-const OUTPUT_FORMAT = process.env.ELEVENLABS_TTS_OUTPUT_FORMAT || "mp3_22050_32";
+const OUTPUT_FORMAT = process.env.ELEVENLABS_TTS_OUTPUT_FORMAT || "mp3_16000_32";
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
       return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
     }
 
+    const t0 = Date.now();
     const res = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
       {
@@ -41,6 +42,7 @@ export async function GET(req: NextRequest) {
         }),
       }
     );
+    const dur = Date.now() - t0;
 
     if (!res.ok || !res.body) {
       const errText = await res.text().catch(() => "TTS error");
@@ -52,6 +54,7 @@ export async function GET(req: NextRequest) {
       headers: {
         "Content-Type": "audio/mpeg",
         "Cache-Control": "no-store",
+        "Server-Timing": `elevenlabs;dur=${dur}`,
       },
     });
   } catch {
@@ -76,6 +79,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Use streaming endpoint for consistent behavior with GET; client can still buffer via blob()
+    const t0 = Date.now();
     const res = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
       {
@@ -92,6 +96,7 @@ export async function POST(req: NextRequest) {
         }),
       }
     );
+    const dur = Date.now() - t0;
 
     if (!res.ok || !res.body) {
       const errText = await res.text().catch(() => "TTS error");
@@ -103,6 +108,7 @@ export async function POST(req: NextRequest) {
       headers: {
         "Content-Type": "audio/mpeg",
         "Cache-Control": "no-store",
+        "Server-Timing": `elevenlabs;dur=${dur}`,
       },
     });
   } catch (err) {

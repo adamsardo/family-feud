@@ -364,6 +364,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return typeof questionIndex === "number" ? pool[questionIndex] ?? null : null;
   }, [pool, persist]);
 
+  const peekNextQuestion = useCallback((): Question | null => {
+    if (pool.length === 0) return null;
+    deckRef.current = normalizeDeck(deckRef.current, pool.length);
+    const { order, index } = deckRef.current;
+    if (order.length === 0) return null;
+    if (index >= order.length) return null;
+    const questionIndex = order[index];
+    return typeof questionIndex === "number" ? pool[questionIndex] ?? null : null;
+  }, [pool]);
+
   const getQuestionCounts = useCallback(
     () => ({
       remaining: Math.max(0, deckRef.current.order.length - deckRef.current.index),
@@ -689,6 +699,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       toggleVoice,
       setNextQuestion,
       drawNextQuestion,
+      peekNextQuestion,
       resetQuestionDeck,
       getQuestionCounts,
       submitAnswer,
@@ -706,6 +717,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       toggleVoice,
       setNextQuestion,
       drawNextQuestion,
+      peekNextQuestion,
       resetQuestionDeck,
       getQuestionCounts,
       submitAnswer,

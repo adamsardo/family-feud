@@ -18,12 +18,15 @@ export function useSurveySaysTTS() {
         params.append("voiceId", voiceId);
       }
       const response = await fetch(`/api/tts/stream?${params.toString()}`);
-
-      if (!response.ok) {
-        console.error("Failed to pre-cache Survey Says audio");
+      // Treat 204 (no API key) as a benign no-op in dev/local
+      if (response.status === 204) {
         return;
       }
-
+      if (!response.ok) {
+        // Keep quiet in UI; log minimally for diagnostics
+        console.warn("Survey Says pre-cache failed:", response.status);
+        return;
+      }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       cachedUrlRef.current = url;

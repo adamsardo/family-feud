@@ -74,7 +74,15 @@ export async function POST(req: NextRequest) {
       parsed = result.object;
     } catch (error) {
       // timeout or model failure -> treat as no match (silently)
-      timedOut = false;
+      const e = error as any;
+      const name = (e && (e.name || e.constructor?.name)) ?? ;
+      const message = (e && e.message) || ;
+      const isAbort =
+        String(name) === AbortError ||
+        /abort/i.test(String(message)) ||
+        /aborted/i.test(String(message)) ||
+        /aborterror/i.test(String(message));
+      timedOut = isAbort;
       parsed = null;
     } finally {
       clearTimeout(timeout);
@@ -106,7 +114,7 @@ export async function POST(req: NextRequest) {
       points: canonical.points,
     };
 
-    // Require confidence >= 0.8
+    // Require confidence >= 0.6
     if ((response.confidence ?? 0) < 0.6) {
       return new Response(JSON.stringify({ matched: false, timedOut: false }), {
         status: 200,

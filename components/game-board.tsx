@@ -21,8 +21,7 @@ export function GameBoard() {
     phase,
     currentQuestion,
     round,
-    voiceEnabled,
-    toggleVoice,
+    // voice always enabled
     submitAnswer,
     submitSteal,
     endRoundAdvance,
@@ -38,7 +37,7 @@ export function GameBoard() {
   const [showStealTransition, setShowStealTransition] = useState(false);
   const surveySaysTTS = useSurveySaysTTS();
 
-  useQuestionTTS(voiceEnabled, currentQuestion?.question ?? null);
+  const questionTTS = useQuestionTTS(true, currentQuestion?.question ?? null);
   useEffect(() => {
     if (!currentQuestion) return;
     const timeoutId = window.setTimeout(() => {
@@ -49,11 +48,9 @@ export function GameBoard() {
   }, [currentQuestion]);
 
   useEffect(() => {
-    if (voiceEnabled) {
-      surveySaysTTS.preCache();
-    }
+    surveySaysTTS.preCache();
     return () => surveySaysTTS.cleanup();
-  }, [voiceEnabled, surveySaysTTS]);
+  }, [surveySaysTTS]);
 
   const allRevealed = useMemo(() => {
     return !!round && !!currentQuestion && round.revealed.every(Boolean);
@@ -86,6 +83,8 @@ export function GameBoard() {
   const onNextQuestion = () => {
     const nextQ = getNextQuestion();
     if (nextQ) {
+      // Pre-cache upcoming question TTS before switching state
+      questionTTS.preCache(nextQ.question);
       playNext();
       endRoundAdvance();
       setNextQuestion(nextQ);
@@ -125,19 +124,11 @@ export function GameBoard() {
 
       {/* Body */}
       <div className="mx-auto w-full max-w-3xl px-4 pb-28">
-        {/* Turn / Voice */}
+        {/* Turn */}
         <div className="mb-4 flex items-center justify-between">
           <div className="text-lg font-semibold">
             {teams[activeTeamIndex].name.toUpperCase()}&rsquo;S TURN
           </div>
-          <label className="flex items-center gap-2 text-xs opacity-80">
-            <input
-              type="checkbox"
-              checked={voiceEnabled}
-              onChange={(e) => toggleVoice(e.target.checked)}
-            />
-            Enable Voice
-          </label>
         </div>
 
         {/* Question */}
@@ -244,4 +235,3 @@ function ScoreCard({
     </div>
   );
 }
-
