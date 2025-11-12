@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { QuestionPackManager } from "@/components/question-manager";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,15 @@ export default function ManagePacksPage() {
             <Link href="/">← Back to game</Link>
           </Button>
         </div>
-        <QuestionPackManager />
+        <Suspense
+          fallback={
+            <div className="rounded-xl border border-white/10 bg-black/30 p-6 text-center text-white/70">
+              Loading question packs…
+            </div>
+          }
+        >
+          <QuestionPackManager />
+        </Suspense>
       </div>
     </main>
   );
