@@ -93,7 +93,8 @@ export async function GET(req: NextRequest) {
     const key = makeKey(text, voiceId, MODEL_ID, OUTPUT_FORMAT);
     const cached = getCache(key);
     if (cached) {
-      return new Response(cached.bytes, {
+      const buffer = cached.bytes.buffer as ArrayBuffer;
+      return new Response(buffer, {
         status: 200,
         headers: {
           "Content-Type": cached.contentType,
@@ -172,7 +173,8 @@ export async function POST(req: NextRequest) {
     const key = makeKey(text, voiceId, modelId, OUTPUT_FORMAT);
     const cached = getCache(key);
     if (cached) {
-      return new Response(cached.bytes, {
+      const buffer = cached.bytes.buffer as ArrayBuffer;
+      return new Response(buffer, {
         status: 200,
         headers: {
           "Content-Type": cached.contentType,
