@@ -15,7 +15,10 @@ export function StrikeDisplay({ strikes }: { strikes: number }) {
       return () => clearTimeout(timer);
     } else if (strikes < displayedStrikes) {
       // Reset (new round)
-      setDisplayedStrikes(strikes);
+      const timer = setTimeout(() => {
+        setDisplayedStrikes(strikes);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [strikes, displayedStrikes]);
 

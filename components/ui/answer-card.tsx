@@ -21,12 +21,17 @@ export function AnswerCard({ revealed, text, points }: AnswerCardProps) {
 
   useEffect(() => {
     if (revealed && !hasFlipped) {
-      setIsFlipping(true);
       const timer = setTimeout(() => {
+        setIsFlipping(true);
+      }, 0);
+      const flipTimer = setTimeout(() => {
         setIsFlipping(false);
         setHasFlipped(true);
       }, 600);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(flipTimer);
+      };
     }
   }, [revealed, hasFlipped]);
 
