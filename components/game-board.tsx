@@ -151,16 +151,15 @@ export function GameBoard() {
             <AnswerCard
               key={idx}
               revealed={round.revealed[idx]}
-              text={`${a.text.toUpperCase()}`}
+              text={a.text}
               points={a.points}
+              index={idx}
             />
           ))}
         </div>
 
         {/* Strikes */}
-        <div className="mt-6 h-8">
-          <StrikeCounter strikes={round.strikes} />
-        </div>
+        <StrikeDisplay strikes={round.strikes} />
 
         {/* Feedback (keep above sticky input) */}
         {feedback && (
@@ -246,32 +245,3 @@ function ScoreCard({
   );
 }
 
-function AnswerCard({
-  revealed,
-  text,
-  points,
-}: {
-  revealed: boolean;
-  text: string;
-  points: number;
-}) {
-  return (
-    <div
-      className={`flex h-12 items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 backdrop-blur-sm transition ${
-        revealed ? "bg-gradient-to-r from-red-600 to-orange-500" : ""
-      }`}
-    >
-      <div className={`text-xs font-semibold ${revealed ? "text-white" : "text-white/70"}`}>
-        {revealed ? text : "[hidden]"}
-      </div>
-      <div className={`text-lg font-extrabold ${revealed ? "text-yellow-200" : "text-white/40"}`}>
-        {revealed ? points : ""}
-      </div>
-    </div>
-  );
-}
-
-function StrikeCounter({ strikes }: { strikes: number }) {
-  const symbols = ["X", "X", "X"].map((s, i) => (i < strikes ? "X" : "_"));
-  return <div className="text-lg font-bold tracking-widest text-red-400">{symbols.join(" ")}</div>;
-}
