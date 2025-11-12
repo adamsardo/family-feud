@@ -1,23 +1,23 @@
-import { useCallback, useRef, useState } from "react";
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useSurveySaysTTS() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const cachedUrlRef = useRef<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const endedListenerRef = useRef<(() => void) | null>(null);
 
   const preCache = useCallback(async (voiceId?: string) => {
     if (cachedUrlRef.current) return; // Already cached
 
     try {
       setIsLoading(true);
-      const response = await fetch("/api/tts/stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: "Survey says!",
-          voiceId,
-        }),
-      });
+      const params = new URLSearchParams({ text: "Survey says!" });
+      if (voiceId) {
+        params.append("voiceId", voiceId);
+      }
+      const response = await fetch(`/api/tts/stream?${params.toString()}`);
 
       if (!response.ok) {
         console.error("Failed to pre-cache Survey Says audio");
@@ -55,9 +55,13 @@ export function useSurveySaysTTS() {
       // Return promise that resolves when audio finishes
       return new Promise((resolve) => {
         const onEnded = () => {
-          audioRef.current?.removeEventListener("ended", onEnded);
+          if (audioRef.current) {
+            audioRef.current.removeEventListener("ended", onEnded);
+          }
+          endedListenerRef.current = null;
           resolve();
         };
+        endedListenerRef.current = onEnded;
         audioRef.current?.addEventListener("ended", onEnded);
       });
     } catch (error) {
@@ -67,6 +71,11 @@ export function useSurveySaysTTS() {
   }, []);
 
   const cleanup = useCallback(() => {
+    // Remove event listener if present
+    if (endedListenerRef.current && audioRef.current) {
+      audioRef.current.removeEventListener("ended", endedListenerRef.current);
+      endedListenerRef.current = null;
+    }
     if (cachedUrlRef.current) {
       URL.revokeObjectURL(cachedUrlRef.current);
       cachedUrlRef.current = null;
@@ -76,6 +85,13 @@ export function useSurveySaysTTS() {
       audioRef.current = null;
     }
   }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, [cleanup]);
 
   return { preCache, play, cleanup, isLoading };
 }
