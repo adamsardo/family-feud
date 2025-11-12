@@ -6,6 +6,13 @@ import { useQuestions } from "@/hooks/use-questions";
 import { useQuestionTTS } from "@/hooks/use-question-tts";
 import { useSfx } from "@/hooks/use-sfx";
 import { toast } from "sonner";
+import { FamilyFeudHeader } from "./ui/family-feud-header";
+import { RoundPotDisplay } from "./ui/round-pot-display";
+import { SurveySaysOverlay } from "./ui/survey-says-overlay";
+import { AnswerCard } from "./ui/answer-card";
+import { StrikeDisplay } from "./ui/strike-display";
+import { PhaseTransitionOverlay } from "./ui/phase-transition-overlay";
+import { useSurveySaysTTS } from "@/hooks/use-survey-says-tts";
 
 export function GameBoard() {
   const {
@@ -27,6 +34,9 @@ export function GameBoard() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const { playCorrect, playWrong, playNext } = useSfx();
+  const [showSurveySays, setShowSurveySays] = useState(false);
+  const [showStealTransition, setShowStealTransition] = useState(false);
+  const surveySaysTTS = useSurveySaysTTS();
 
   useQuestionTTS(voiceEnabled, currentQuestion?.question ?? null);
   useEffect(() => {
@@ -37,6 +47,13 @@ export function GameBoard() {
     }, 0);
     return () => window.clearTimeout(timeoutId);
   }, [currentQuestion]);
+
+  useEffect(() => {
+    if (voiceEnabled) {
+      surveySaysTTS.preCache();
+    }
+    return () => surveySaysTTS.cleanup();
+  }, [voiceEnabled, surveySaysTTS]);
 
   const allRevealed = useMemo(() => {
     return !!round && !!currentQuestion && round.revealed.every(Boolean);
@@ -82,25 +99,28 @@ export function GameBoard() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-black to-blue-950 text-white">
-      {/* Header / Scores */}
-      <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-4">
-        <div className="text-sm font-semibold tracking-wide opacity-80">CLASSIC FAMILY FEUD</div>
-        <div className="flex items-center gap-2">
-          <ScoreCard
-            label={teams[0].name}
-            score={teams[0].score}
-            active={activeTeamIndex === 0}
-            bump={activeTeamIndex === 0 && feedback === "correct" && phase === "playing"}
-            color={teams[0].color}
-          />
-          <ScoreCard
-            label={teams[1].name}
-            score={teams[1].score}
-            active={activeTeamIndex === 1}
-            bump={activeTeamIndex === 1 && feedback === "correct" && phase === "playing"}
-            color={teams[1].color}
-          />
-        </div>
+      {/* Header */}
+      <FamilyFeudHeader />
+
+      {/* Scores with Round Pot */}
+      <div className="mx-auto flex w-full max-w-3xl items-center justify-center gap-6 px-4 pb-4">
+        <ScoreCard
+          label={teams[0].name}
+          score={teams[0].score}
+          active={activeTeamIndex === 0}
+          bump={activeTeamIndex === 0 && feedback === "correct" && phase === "playing"}
+          color={teams[0].color}
+        />
+
+        {round && <RoundPotDisplay points={round.roundPot} />}
+
+        <ScoreCard
+          label={teams[1].name}
+          score={teams[1].score}
+          active={activeTeamIndex === 1}
+          bump={activeTeamIndex === 1 && feedback === "correct" && phase === "playing"}
+          color={teams[1].color}
+        />
       </div>
 
       {/* Body */}
