@@ -38,6 +38,10 @@ Create a `.env.local` file:
 OPENAI_API_KEY=your_openai_key
 ELEVENLABS_API_KEY=your_elevenlabs_key
 ELEVENLABS_VOICE_ID=your_voice_id_optional
+# Optional: override the TTS model (defaults to ElevenLabs v3 alpha)
+ELEVENLABS_TTS_MODEL_ID=eleven_v3
+# Optional: audio output format (defaults to mp3_22050_32)
+ELEVENLABS_TTS_OUTPUT_FORMAT=mp3_22050_32
 ```
 
 **Run:**

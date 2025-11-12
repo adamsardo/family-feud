@@ -83,7 +83,7 @@ Points **must** sum to 100 per question (Family Feud convention).
 1. **Edge Runtime**: `/api` routes use `export const runtime = "edge"`. Avoid Node.js-only APIs (fs, crypto modules, etc.).
 2. **Validation timeout**: 6 seconds (see `api/validate-answer/route.ts:60`). Gracefully treat timeouts as "no match".
 3. **localStorage**: Game state persists per-browser. `STORAGE_VERSION` (in `game-context.tsx:29`) should increment if schema changes to invalidate old saves.
-4. **Environment variables**: `OPENAI_API_KEY` and `ELEVENLABS_API_KEY` are **required**. Missing keys cause silent failures (validation returns `matched: false`).
+4. **Environment variables**: `OPENAI_API_KEY` and `ELEVENLABS_API_KEY` are **required**. Optional: `ELEVENLABS_VOICE_ID`, `ELEVENLABS_TTS_MODEL_ID` (defaults to `eleven_v3`), `ELEVENLABS_TTS_OUTPUT_FORMAT` (defaults to `mp3_22050_32`). Missing keys cause silent failures (validation returns `matched: false`).
 
 ## Common Tasks
 

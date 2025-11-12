@@ -1,7 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Skill(superpowers:brainstorming)"
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:writing-plans)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm next build:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(pnpm run lint:*)"
     ],
     "deny": [],
     "ask": []
