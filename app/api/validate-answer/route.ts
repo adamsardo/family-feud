@@ -75,10 +75,10 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       // timeout or model failure -> treat as no match (silently)
       const e = error as any;
-      const name = (e && (e.name || e.constructor?.name)) ?? ;
-      const message = (e && e.message) || ;
+      const name = (e && (e.name || e.constructor?.name)) ?? "";
+      const message = (e && e.message) || "";
       const isAbort =
-        String(name) === AbortError ||
+        String(name) === "AbortError" ||
         /abort/i.test(String(message)) ||
         /aborted/i.test(String(message)) ||
         /aborterror/i.test(String(message));
