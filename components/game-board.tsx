@@ -28,7 +28,7 @@ export function GameBoard() {
     setNextQuestion,
     endGame,
   } = useGame();
-  const { getNextQuestion } = useQuestions();
+  const { getNextQuestion, peekNextQuestion } = useQuestions();
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
@@ -62,6 +62,15 @@ export function GameBoard() {
   }, [allRevealed, currentQuestion, phase, round]);
 
   if (!currentQuestion || !round) return null;
+
+  // Pre-cache upcoming question as soon as the round ends
+  useEffect(() => {
+    if (!roundEnded) return;
+    const nextQ = peekNextQuestion();
+    if (nextQ) {
+      questionTTS.preCache(nextQ.question);
+    }
+  }, [roundEnded, peekNextQuestion, questionTTS]);
 
   const onSubmit = async () => {
     if (!answer.trim() || submitting) return;
