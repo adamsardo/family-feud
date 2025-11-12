@@ -3,10 +3,55 @@ import { NextRequest } from "next/server";
 export const runtime = "edge";
 
 const DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM"; // Rachel
-// Allow overriding the TTS model via env; default to ElevenLabs v3 alpha (eleven_v3)
-// Docs: https://elevenlabs.io/docs/models#eleven-v3-alpha
-const MODEL_ID = process.env.ELEVENLABS_TTS_MODEL_ID || "eleven_v3";
-const OUTPUT_FORMAT = process.env.ELEVENLABS_TTS_OUTPUT_FORMAT || "mp3_16000_32";
+// Allow overriding the TTS model via env; default to ElevenLabs Turbo v2.5
+// Docs: https://elevenlabs.io/docs/models#turbo-v25
+const MODEL_ID = process.env.ELEVENLABS_TTS_MODEL_ID || "eleven_turbo_v2_5";
+const OUTPUT_FORMAT = process.env.ELEVENLABS_TTS_OUTPUT_FORMAT || "mp3_44100_64";
+
+const parseOptimizeStreamingLatency = (): number | null => {
+  const raw = process.env.ELEVENLABS_TTS_OPTIMIZE_STREAMING_LATENCY;
+  if (raw === undefined) return 3;
+  const normalized = raw.trim().toLowerCase();
+  if (!normalized) return 3;
+  if (["none", "off", "default", "null"].includes(normalized)) return null;
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed)) return 3;
+  const clamped = Math.max(0, Math.min(4, Math.round(parsed)));
+  return clamped;
+};
+
+const OPTIMIZE_STREAMING_LATENCY = parseOptimizeStreamingLatency();
+
+const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
+
+const parseVoiceSetting = (value: string | undefined, fallback: number): number => {
+  if (value === undefined) return fallback;
+  const normalized = value.trim();
+  if (!normalized) return fallback;
+  const hasPercent = normalized.endsWith("%");
+  const rawNumeric = Number(hasPercent ? normalized.slice(0, -1) : normalized);
+  if (!Number.isFinite(rawNumeric)) return fallback;
+  const ratio = hasPercent || rawNumeric > 1 ? rawNumeric / 100 : rawNumeric;
+  return clamp01(ratio);
+};
+
+const STABILITY = parseVoiceSetting(process.env.ELEVENLABS_TTS_STABILITY, 0.4);
+const SIMILARITY_BOOST = parseVoiceSetting(process.env.ELEVENLABS_TTS_SIMILARITY, 1);
+const VOICE_SETTINGS = Object.freeze({
+  stability: STABILITY,
+  similarity_boost: SIMILARITY_BOOST,
+});
+
+const resolveContentType = (format: string): string => {
+  if (format.startsWith("mp3")) return "audio/mpeg";
+  if (format.startsWith("opus")) return "audio/ogg";
+  if (format.startsWith("pcm")) return "audio/wave";
+  if (format.startsWith("ulaw") || format.startsWith("alaw")) return "audio/basic";
+  return "application/octet-stream";
+};
+
+const STREAM_CONTENT_TYPE = resolveContentType(OUTPUT_FORMAT);
+const VOICE_SETTINGS_CACHE_TOKEN = `${VOICE_SETTINGS.stability.toFixed(3)}:${VOICE_SETTINGS.similarity_boost.toFixed(3)}`;
 
 // Simple in-memory LRU cache (per edge runtime instance/region)
 type CacheEntry = { updatedAt: number; bytes: Uint8Array; contentType: string };
@@ -14,7 +59,6 @@ const CACHE_MAX = Number(process.env.ELEVENLABS_TTS_CACHE_MAX || 20);
 const CACHE_TTL_MS = Number(process.env.ELEVENLABS_TTS_CACHE_TTL_MS || 60 * 60 * 1000);
 const cache = new Map<string, CacheEntry>();
 
-const enc = new TextEncoder();
 const hex = (n: number) => n.toString(16).padStart(8, "0");
 const hashString = (s: string): string => {
   // lightweight FNV-1a 32-bit
@@ -26,8 +70,24 @@ const hashString = (s: string): string => {
   return hex(h);
 };
 
-const makeKey = (text: string, voiceId: string, model: string, format: string): string =>
-  `${hashString(text)}:${voiceId}:${model}:${format}`;
+const makeKey = (
+  text: string,
+  voiceId: string,
+  model: string,
+  format: string,
+  optimizeLatency: number | null,
+  voiceSettingsToken: string
+): string =>
+  `${hashString(text)}:${voiceId}:${model}:${format}:${optimizeLatency ?? "default"}:${voiceSettingsToken}`;
+
+const buildStreamUrl = (voiceId: string): URL => {
+  const url = new URL(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`);
+  url.searchParams.set("output_format", OUTPUT_FORMAT);
+  if (OPTIMIZE_STREAMING_LATENCY !== null) {
+    url.searchParams.set("optimize_streaming_latency", String(OPTIMIZE_STREAMING_LATENCY));
+  }
+  return url;
+};
 
 const touch = (key: string) => {
   const v = cache.get(key);
@@ -90,7 +150,14 @@ export async function GET(req: NextRequest) {
       return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
     }
 
-    const key = makeKey(text, voiceId, MODEL_ID, OUTPUT_FORMAT);
+    const key = makeKey(
+      text,
+      voiceId,
+      MODEL_ID,
+      OUTPUT_FORMAT,
+      OPTIMIZE_STREAMING_LATENCY,
+      VOICE_SETTINGS_CACHE_TOKEN
+    );
     const cached = getCache(key);
     if (cached) {
       const buffer = cached.bytes.buffer as ArrayBuffer;
@@ -104,25 +171,22 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    const requestUrl = buildStreamUrl(voiceId);
+
     const t0 = Date.now();
-    const res = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "xi-api-key": apiKey,
-          Accept: "audio/mpeg",
-        },
-        body: JSON.stringify({
-          text,
-          model_id: MODEL_ID,
-          // v3 is not intended for real-time usage; keep streaming here for simplicity
-          // and allow output format override via env
-          output_format: OUTPUT_FORMAT,
-        }),
-      }
-    );
+    const res = await fetch(requestUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "xi-api-key": apiKey,
+        Accept: STREAM_CONTENT_TYPE,
+      },
+      body: JSON.stringify({
+        text,
+        model_id: MODEL_ID,
+        voice_settings: VOICE_SETTINGS,
+      }),
+    });
     const dur = Date.now() - t0;
 
     if (!res.ok || !res.body) {
@@ -136,14 +200,14 @@ export async function GET(req: NextRequest) {
     (async () => {
       try {
         const bytes = await drainToBytes(cacheStream);
-        putCache(key, { updatedAt: Date.now(), bytes, contentType: "audio/mpeg" });
+        putCache(key, { updatedAt: Date.now(), bytes, contentType: STREAM_CONTENT_TYPE });
       } catch {}
     })();
 
     return new Response(clientStream, {
       status: 200,
       headers: {
-        "Content-Type": "audio/mpeg",
+        "Content-Type": STREAM_CONTENT_TYPE,
         "Cache-Control": "no-store",
         "Server-Timing": `elevenlabs;dur=${dur}, cache;desc=MISS`,
       },
@@ -170,7 +234,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Use streaming endpoint for consistent behavior with GET; client can still buffer via blob()
-    const key = makeKey(text, voiceId, modelId, OUTPUT_FORMAT);
+    const key = makeKey(
+      text,
+      voiceId,
+      modelId,
+      OUTPUT_FORMAT,
+      OPTIMIZE_STREAMING_LATENCY,
+      VOICE_SETTINGS_CACHE_TOKEN
+    );
     const cached = getCache(key);
     if (cached) {
       const buffer = cached.bytes.buffer as ArrayBuffer;
@@ -184,23 +255,22 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const requestUrl = buildStreamUrl(voiceId);
+
     const t0 = Date.now();
-    const res = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "xi-api-key": apiKey,
-          Accept: "audio/mpeg",
-        },
-        body: JSON.stringify({
-          text,
-          model_id: modelId,
-          output_format: OUTPUT_FORMAT,
-        }),
-      }
-    );
+    const res = await fetch(requestUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "xi-api-key": apiKey,
+        Accept: STREAM_CONTENT_TYPE,
+      },
+      body: JSON.stringify({
+        text,
+        model_id: modelId,
+        voice_settings: VOICE_SETTINGS,
+      }),
+    });
     const dur = Date.now() - t0;
 
     if (!res.ok || !res.body) {
@@ -212,14 +282,14 @@ export async function POST(req: NextRequest) {
     (async () => {
       try {
         const bytes = await drainToBytes(cacheStream);
-        putCache(key, { updatedAt: Date.now(), bytes, contentType: "audio/mpeg" });
+        putCache(key, { updatedAt: Date.now(), bytes, contentType: STREAM_CONTENT_TYPE });
       } catch {}
     })();
 
     return new Response(clientStream, {
       status: 200,
       headers: {
-        "Content-Type": "audio/mpeg",
+        "Content-Type": STREAM_CONTENT_TYPE,
         "Cache-Control": "no-store",
         "Server-Timing": `elevenlabs;dur=${dur}, cache;desc=MISS`,
       },

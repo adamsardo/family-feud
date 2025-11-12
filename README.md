@@ -38,10 +38,15 @@ Create a `.env.local` file:
 OPENAI_API_KEY=your_openai_key
 ELEVENLABS_API_KEY=your_elevenlabs_key
 ELEVENLABS_VOICE_ID=your_voice_id_optional
-# Optional: override the TTS model (defaults to ElevenLabs v3 alpha)
-ELEVENLABS_TTS_MODEL_ID=eleven_v3
-# Optional: audio output format (defaults to mp3_22050_32)
-ELEVENLABS_TTS_OUTPUT_FORMAT=mp3_22050_32
+# Optional: override the TTS model (defaults to ElevenLabs Turbo v2.5)
+ELEVENLABS_TTS_MODEL_ID=eleven_turbo_v2_5
+# Optional: audio output format (defaults to mp3_44100_64 for higher fidelity)
+ELEVENLABS_TTS_OUTPUT_FORMAT=mp3_44100_64
+# Optional: latency tuning (defaults to 3 for max optimizations without disabling normalization)
+ELEVENLABS_TTS_OPTIMIZE_STREAMING_LATENCY=3
+# Optional: voice tone tuning (defaults to 40% stability, 100% similarity)
+ELEVENLABS_TTS_STABILITY=0.4
+ELEVENLABS_TTS_SIMILARITY=1
 ```
 
 **Run:**
